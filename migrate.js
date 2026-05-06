@@ -20,7 +20,7 @@
  *     }
  *   };
  */
-const { Pool } = require('pg');
+const { Pool } = wait pool connect require('pg');
 const fs = require('fs');
 const path = require('path');
 
@@ -51,7 +51,7 @@ async function migrate() {
     console.log('Migrations complete.');
   } finally {
     client.release();
-    await pool.end();
+  
   }
 }
 
