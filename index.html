@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiagPilot — Professional Car Diagnostics for $9.99/mo</title>
+
+    <!-- SEO -->
+    <meta name="description" content="AI-guided diagnostic flowcharts built by an ASE Master Technician. Step-by-step repair guidance with live mechanic video escalation when you need it.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://diagpilot.polsia.app/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://diagpilot.polsia.app/">
+    <meta property="og:title" content="DiagPilot — Professional Car Diagnostics for $9.99/mo">
+    <meta property="og:description" content="AI-guided diagnostic flowcharts built by an ASE Master Technician. Step-by-step repair guidance with live mechanic video escalation when you need it.">
+    <meta property="og:image" content="https://diagpilot.polsia.app/og-image.svg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="DiagPilot — AI-guided car diagnostic flowcharts with live mechanic backup">
+    <meta property="og:site_name" content="DiagPilot">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DiagPilot — Professional Car Diagnostics for $9.99/mo">
+    <meta name="twitter:description" content="AI-guided diagnostic flowcharts built by an ASE Master Technician. Step-by-step repair guidance with live mechanic video escalation when you need it.">
+    <meta name="twitter:image" content="https://diagpilot.polsia.app/og-image.svg">
+    <meta name="twitter:image:alt" content="DiagPilot — AI-guided car diagnostic flowcharts with live mechanic backup">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-card: #111827;
+            --accent: #22d3ee;
+            --accent-dim: rgba(34, 211, 238, 0.15);
+            --orange: #f97316;
+            --orange-dim: rgba(249, 115, 22, 0.15);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: rgba(148, 163, 184, 0.1);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Noise texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Nav */
+        nav {
+            padding: 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 32px;
+            width: auto;
+            display: block;
+        }
+
+        .nav-tag {
+            font-size: 0.75rem;
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .nav-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            color: var(--bg-dark);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 100px;
+            text-decoration: none;
+            letter-spacing: -0.2px;
+            transition: all 0.2s;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(34, 211, 238, 0.3);
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 32px;
+            padding: 16px 36px;
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            color: var(--bg-dark);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-radius: 12px;
+            text-decoration: none;
+            letter-spacing: -0.3px;
+            transition: all 0.2s;
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(34, 211, 238, 0.35);
+        }
+
+        .hero-cta svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .closing-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 32px;
+            padding: 16px 36px;
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            color: var(--bg-dark);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-radius: 12px;
+            text-decoration: none;
+            letter-spacing: -0.3px;
+            transition: all 0.2s;
+        }
+
+        .closing-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(34, 211, 238, 0.35);
+        }
+
+        /* Hero */
+        .hero {
+            padding: 100px 0 80px;
+            text-align: left;
+            position: relative;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 28px;
+            font-weight: 500;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 3.8rem);
+            line-height: 1.08;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            margin-bottom: 24px;
+        }
+
+        h1 .highlight {
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 460px;
+            line-height: 1.7;
+        }
+
+        /* Hero visual - diagnostic flow mockup */
+        .hero-visual {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            position: relative;
+        }
+
+        .hero-visual::after {
+            content: '';
+            position: absolute;
+            top: -1px; left: 50px; right: 50px; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        .flow-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .flow-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+        }
+
+        .flow-dot.green { background: #22c55e; }
+        .flow-dot.yellow { background: #eab308; }
+        .flow-dot.red { background: #ef4444; }
+
+        .flow-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
+        .flow-step {
+            padding: 14px 18px;
+            background: rgba(34, 211, 238, 0.05);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .flow-step.active {
+            background: var(--accent-dim);
+            border-left-color: var(--accent);
+        }
+
+        .flow-step .label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .flow-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .flow-input .cursor {
+            color: var(--accent);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .flow-input span {
+            color: var(--accent);
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 600;
+        }
+
+        /* Stats strip */
+        .stats {
+            padding: 60px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        /* How it works */
+        .how-it-works {
+            padding: 100px 0;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+            letter-spacing: -1px;
+            margin-bottom: 60px;
+            max-width: 600px;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px 28px;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+
+        .step-card:hover {
+            border-color: rgba(34, 211, 238, 0.3);
+        }
+
+        .step-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: rgba(34, 211, 238, 0.12);
+            position: absolute;
+            top: 20px;
+            right: 24px;
+        }
+
+        .step-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .step-card:nth-child(1) .step-icon { background: var(--accent-dim); }
+        .step-card:nth-child(2) .step-icon { background: var(--orange-dim); }
+        .step-card:nth-child(3) .step-icon { background: rgba(168, 85, 247, 0.15); }
+
+        .step-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+
+        .step-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* The difference */
+        .difference {
+            padding: 80px 0 100px;
+        }
+
+        .diff-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 48px;
+        }
+
+        .diff-card {
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .diff-card.old {
+            background: rgba(239, 68, 68, 0.04);
+            border-color: rgba(239, 68, 68, 0.15);
+        }
+
+        .diff-card.new {
+            background: rgba(34, 211, 238, 0.04);
+            border-color: rgba(34, 211, 238, 0.2);
+        }
+
+        .diff-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            letter-spacing: -0.3px;
+        }
+
+        .diff-card.old h3 { color: #f87171; }
+        .diff-card.new h3 { color: var(--accent); }
+
+        .diff-list {
+            list-style: none;
+        }
+
+        .diff-list li {
+            padding: 8px 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .diff-list li::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .diff-card.old .diff-list li::before { background: #f87171; }
+        .diff-card.new .diff-list li::before { background: var(--accent); }
+
+        /* Pricing preview */
+        .pricing {
+            padding: 80px 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .price-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            max-width: 700px;
+            margin: 48px auto 0;
+        }
+
+        .price-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px 28px;
+            text-align: left;
+        }
+
+        .price-card.featured {
+            border-color: rgba(34, 211, 238, 0.3);
+            position: relative;
+        }
+
+        .price-card.featured::after {
+            content: '';
+            position: absolute;
+            top: -1px; left: 30px; right: 30px; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        .price-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .price-amount .period {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .price-name {
+            font-size: 0.85rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .price-desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        /* Technician section */
+        .technicians {
+            padding: 80px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-top: 48px;
+        }
+
+        .tech-features {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tech-feature {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .tech-feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--orange-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+        }
+
+        .tech-feature h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .tech-feature p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .tech-visual {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .tech-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .tech-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--orange), #dc2626);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .tech-info { flex: 1; }
+
+        .tech-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .tech-spec {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .tech-badge {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-weight: 600;
+        }
+
+        .tech-badge.online {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .tech-badge.busy {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+        }
+
+        /* Closing */
+        .closing {
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .closing h2 {
+            max-width: 700px;
+            margin: 0 auto 20px;
+        }
+
+        .closing p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .hero { padding: 60px 0 40px; }
+            .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+            .stats-grid { grid-template-columns: 1fr; gap: 30px; }
+            .steps-grid { grid-template-columns: 1fr; }
+            .diff-grid { grid-template-columns: 1fr; }
+            .price-cards { grid-template-columns: 1fr; }
+            .tech-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2.2rem; }
+            h2 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/" class="logo"><img src="/diagpilot-logo.svg" alt="DiagPilot"></a>
+            <div style="display:flex;align-items:center;gap:16px;">
+                <div class="nav-tag">AI + Live Techs</div>
+                <a href="/auth.html?signup=true" class="nav-cta">Start Diagnosing &mdash; $9.99/mo</a>
+            </div>
+        </nav>
+    </div>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-grid">
+                <div>
+                    <div class="hero-badge">Automotive diagnostics, reimagined</div>
+                    <h1>Fix your car with <span class="highlight">AI guidance</span> and real technicians on standby</h1>
+                    <p class="hero-sub">Professional-grade diagnostic flowcharts. Interactive step-by-step repair walks. And when you get stuck, a certified tech joins you on video in minutes.</p>
+                    <a href="/auth.html?signup=true" class="hero-cta">
+                        Start Diagnosing &mdash; $9.99/mo
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                    </a>
+                </div>
+                <div class="hero-visual">
+                    <div class="flow-header">
+                        <div class="flow-dot red"></div>
+                        <div class="flow-dot yellow"></div>
+                        <div class="flow-dot green"></div>
+                        <span class="flow-title">DiagPilot - 2019 Honda Civic - No Start</span>
+                    </div>
+                    <div class="flow-step">
+                        <div class="label">Step 1</div>
+                        Check battery voltage at terminals with multimeter
+                    </div>
+                    <div class="flow-step active">
+                        <div class="label">Step 2 - Your Input</div>
+                        Did you get 12.4V or higher at the battery?
+                        <div class="flow-input">
+                            <span>12.6V</span> <span class="cursor">|</span>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="label">Step 3</div>
+                        Good. Now check for power at the starter solenoid...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div>
+                    <div class="stat-number">$838</div>
+                    <div class="stat-label">Average car repair bill in 2026</div>
+                </div>
+                <div>
+                    <div class="stat-number">49%</div>
+                    <div class="stat-label">Of DIYers frustrated by unclear diagnostics</div>
+                </div>
+                <div>
+                    <div class="stat-number">$9.99</div>
+                    <div class="stat-label">DiagPilot monthly subscription</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <div class="container">
+            <div class="section-label">How it works</div>
+            <h2>Three steps from symptom to solution</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">01</div>
+                    <div class="step-icon">&#128663;</div>
+                    <h3>Tell us the problem</h3>
+                    <p>Select your vehicle year, make, and model. Describe the symptom. DiagPilot pulls up the right diagnostic flowchart instantly.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">02</div>
+                    <div class="step-icon">&#128270;</div>
+                    <h3>Follow the flow, input your readings</h3>
+                    <p>Walk through each diagnostic step. Input your multimeter readings, test results, and observations. The AI adapts the next step based on what you find.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">03</div>
+                    <div class="step-icon">&#128247;</div>
+                    <h3>Get stuck? Call a tech</h3>
+                    <p>If any step confuses you, tap to connect with a live certified technician via video. They see your progress and walk you through it in real time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="difference">
+        <div class="container">
+            <div class="section-label">The gap we fill</div>
+            <h2>What exists today vs. what you actually need</h2>
+            <div class="diff-grid">
+                <div class="diff-card old">
+                    <h3>The current options</h3>
+                    <ul class="diff-list">
+                        <li>AI chatbots that guess at your problem</li>
+                        <li>Mitchell/AllData at $150+/month, built for shops</li>
+                        <li>YouTube videos that may not match your exact car</li>
+                        <li>Forums with conflicting advice from strangers</li>
+                        <li>No way to get live expert help when stuck</li>
+                    </ul>
+                </div>
+                <div class="diff-card new">
+                    <h3>DiagPilot</h3>
+                    <ul class="diff-list">
+                        <li>Structured diagnostic flows based on real repair data</li>
+                        <li>$9.99/month, built for people who fix their own cars</li>
+                        <li>Vehicle-specific steps for your exact year/make/model</li>
+                        <li>Interactive: you input readings, AI gives next steps</li>
+                        <li>Live video with a certified tech when you need it</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing">
+        <div class="container">
+            <div class="section-label">Simple pricing</div>
+            <h2>Pro-grade diagnostics at DIY prices</h2>
+            <div class="price-cards">
+                <div class="price-card featured">
+                    <div class="price-name">AI Diagnostics</div>
+                    <div class="price-amount">$9.99 <span class="period">/month</span></div>
+                    <p class="price-desc">Unlimited AI-guided diagnostic flowcharts. Interactive step-by-step repair walks for any vehicle. Input your readings, get your next step.</p>
+                </div>
+                <div class="price-card">
+                    <div class="price-name">Live Tech Sessions</div>
+                    <div class="price-amount">Pay per call</div>
+                    <p class="price-desc">Connect with a certified technician via video when you get stuck. They see your diagnostic progress and walk you through the repair live.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="technicians">
+        <div class="container">
+            <div class="section-label">For technicians</div>
+            <h2>Earn money on your schedule</h2>
+            <div class="tech-grid">
+                <div class="tech-features">
+                    <div class="tech-feature">
+                        <div class="tech-feature-icon">&#128197;</div>
+                        <div>
+                            <h4>Set your own hours</h4>
+                            <p>Go active when you want. No shifts, no minimums. Work from your couch or your shop.</p>
+                        </div>
+                    </div>
+                    <div class="tech-feature">
+                        <div class="tech-feature-icon">&#127891;</div>
+                        <div>
+                            <h4>Simple application</h4>
+                            <p>Apply directly on DiagPilot. Verify your experience and certifications. Start helping people fix cars.</p>
+                        </div>
+                    </div>
+                    <div class="tech-feature">
+                        <div class="tech-feature-icon">&#128176;</div>
+                        <div>
+                            <h4>Get paid per session</h4>
+                            <p>Every video call earns you money. The more people you help, the more you make. Direct payouts.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="tech-visual">
+                    <div class="tech-status">
+                        <div class="tech-avatar">MR</div>
+                        <div class="tech-info">
+                            <div class="tech-name">Mike R.</div>
+                            <div class="tech-spec">ASE Certified - 12yr experience</div>
+                        </div>
+                        <div class="tech-badge online">Online</div>
+                    </div>
+                    <div class="tech-status">
+                        <div class="tech-avatar">JL</div>
+                        <div class="tech-info">
+                            <div class="tech-name">Jessica L.</div>
+                            <div class="tech-spec">Honda/Toyota Specialist - 8yr</div>
+                        </div>
+                        <div class="tech-badge online">Online</div>
+                    </div>
+                    <div class="tech-status">
+                        <div class="tech-avatar">DW</div>
+                        <div class="tech-info">
+                            <div class="tech-name">David W.</div>
+                            <div class="tech-spec">Electrical Diagnostics - 15yr</div>
+                        </div>
+                        <div class="tech-badge busy">In Session</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="closing">
+        <div class="container">
+            <h2>The repair shop in your pocket, with a real technician on standby</h2>
+            <p>Professional diagnostic information shouldn't cost $150/month. And when AI isn't enough, a real human should be one tap away. That's DiagPilot.</p>
+            <a href="/auth.html?signup=true" class="closing-cta">Start Your Diagnostic Now &mdash; $9.99/mo</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            DiagPilot &copy; 2026. Built by Polsia.
+        </div>
+    </footer>
+
+    <!-- Polsia Analytics -->
+    <script>
+    (function() {
+        var slug = 'diagpilot';
+        if (!slug) return;
+        var vid = localStorage.getItem('polsia_vid');
+        if (!vid) {
+            vid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0;
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+            localStorage.setItem('polsia_vid', vid);
+        }
+        new Image().src = 'https://polsia.com/api/beacon/pixel?s=' + encodeURIComponent(slug) + '&v=' + encodeURIComponent(vid);
+    })();
+    </script>
+</body>
+</html>

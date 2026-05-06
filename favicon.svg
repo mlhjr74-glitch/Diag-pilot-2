@@ -1,0 +1,22 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background with subtle radius -->
+  <rect width="32" height="32" rx="7" fill="#0a0e17"/>
+
+  <!-- Wrench body diagonal -->
+  <path d="M8 24 L20 8" stroke="#22d3ee" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Wrench jaw (top-right) -->
+  <path d="M20 8 C20 8 25 5 27 7 C29 9 25 13 25 13 L20 8Z" fill="#22d3ee"/>
+
+  <!-- Wrench handle end knob -->
+  <circle cx="8" cy="24" r="2.5" fill="#22d3ee"/>
+
+  <!-- Circuit traces from knob -->
+  <path d="M8 24 L4 28" stroke="#f97316" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M4 28 L4 30 L8 30" stroke="#f97316" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Neural node dots -->
+  <circle cx="4" cy="30" r="1.5" fill="#f97316"/>
+  <circle cx="8" cy="30" r="1.5" fill="#f97316" opacity="0.6"/>
+  <circle cx="11" cy="30" r="1.5" fill="#f97316" opacity="0.35"/>
+</svg>

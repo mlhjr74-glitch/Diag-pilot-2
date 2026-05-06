@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiagPilot - Sign In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-card: #111827;
+            --accent: #22d3ee;
+            --accent-dim: rgba(34, 211, 238, 0.15);
+            --orange: #f97316;
+            --orange-dim: rgba(249, 115, 22, 0.15);
+            --green: #22c55e;
+            --green-dim: rgba(34, 197, 94, 0.15);
+            --red: #ef4444;
+            --red-dim: rgba(239, 68, 68, 0.15);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-dim: #64748b;
+            --border: rgba(148, 163, 184, 0.1);
+            --border-accent: rgba(34, 211, 238, 0.2);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 440px;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Nav */
+        .auth-nav {
+            width: 100%;
+            max-width: 1100px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 32px;
+            width: auto;
+            display: block;
+        }
+
+        .nav-back {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+
+        .nav-back:hover { color: var(--accent); }
+
+        /* Auth Card */
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 36px;
+            margin-top: 40px;
+            position: relative;
+        }
+
+        .auth-card::after {
+            content: '';
+            position: absolute;
+            top: -1px; left: 40px; right: 40px; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-header h1 {
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .auth-header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Tab switcher */
+        .auth-tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px 16px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .auth-tab.active {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        .auth-tab:not(.active):hover {
+            color: var(--text-primary);
+        }
+
+        /* Form */
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .btn-auth {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 15px 32px;
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            color: var(--bg-dark);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            letter-spacing: -0.3px;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(34, 211, 238, 0.3);
+        }
+
+        .btn-auth:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-auth .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(10, 14, 23, 0.3);
+            border-top-color: var(--bg-dark);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .forgot-link {
+            display: block;
+            text-align: right;
+            font-size: 0.82rem;
+            color: var(--accent);
+            text-decoration: none;
+            margin-top: -12px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .forgot-link:hover { opacity: 0.8; }
+
+        /* Messages */
+        .auth-message {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .auth-message.error {
+            display: block;
+            background: var(--red-dim);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .auth-message.success {
+            display: block;
+            background: var(--green-dim);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        /* Forgot/Reset screens */
+        .auth-screen { display: none; }
+        .auth-screen.active { display: block; }
+
+        .back-to-login {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .back-to-login:hover { color: var(--accent); }
+
+        /* Footer text */
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-bottom: 40px;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .auth-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .password-requirements {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            margin-top: 6px;
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 32px 24px;
+                margin-top: 24px;
+            }
+            .auth-header h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="auth-nav">
+        <a href="/" class="logo"><img src="/diagpilot-logo.svg" alt="DiagPilot"></a>
+        <a href="/" class="nav-back">&larr; Back to home</a>
+    </nav>
+
+    <div class="page-wrapper">
+        <!-- LOGIN / SIGNUP SCREEN -->
+        <div id="screen-auth" class="auth-screen active">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>Welcome to Diag<span style="color: var(--accent)">Pilot</span></h1>
+                    <p>AI-guided automotive diagnostics</p>
+                </div>
+
+                <div id="auth-message" class="auth-message"></div>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Sign In</button>
+                    <button class="auth-tab" data-tab="signup">Create Account</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="form-login" class="auth-form active" autocomplete="on">
+                    <div class="form-group">
+                        <label class="form-label" for="login-email">Email</label>
+                        <input type="email" id="login-email" name="email" placeholder="you@example.com" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="login-password">Password</label>
+                        <input type="password" id="login-password" name="password" placeholder="Your password" required autocomplete="current-password">
+                    </div>
+                    <a class="forgot-link" id="forgot-link">Forgot password?</a>
+                    <button type="submit" class="btn-auth" id="btn-login">
+                        <span id="btn-login-text">Sign In</span>
+                    </button>
+                </form>
+
+                <!-- Signup Form -->
+                <form id="form-signup" class="auth-form" autocomplete="on">
+                    <div class="form-group">
+                        <label class="form-label" for="signup-name">Name</label>
+                        <input type="text" id="signup-name" name="name" placeholder="Your name" required autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="signup-email">Email</label>
+                        <input type="email" id="signup-email" name="email" placeholder="you@example.com" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="signup-password">Password</label>
+                        <input type="password" id="signup-password" name="password" placeholder="Create a password" required autocomplete="new-password">
+                        <div class="password-requirements">Minimum 8 characters</div>
+                    </div>
+                    <button type="submit" class="btn-auth" id="btn-signup">
+                        <span id="btn-signup-text">Create Account</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- FORGOT PASSWORD SCREEN -->
+        <div id="screen-forgot" class="auth-screen">
+            <div class="auth-card">
+                <button class="back-to-login" id="back-from-forgot">&larr; Back to sign in</button>
+                <div class="auth-header">
+                    <h1>Reset Password</h1>
+                    <p>Enter your email and we'll send you a reset link</p>
+                </div>
+
+                <div id="forgot-message" class="auth-message"></div>
+
+                <form id="form-forgot" autocomplete="on">
+                    <div class="form-group">
+                        <label class="form-label" for="forgot-email">Email</label>
+                        <input type="email" id="forgot-email" name="email" placeholder="you@example.com" required autocomplete="email">
+                    </div>
+                    <button type="submit" class="btn-auth" id="btn-forgot">
+                        <span id="btn-forgot-text">Send Reset Link</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- RESET PASSWORD SCREEN -->
+        <div id="screen-reset" class="auth-screen">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>Set New Password</h1>
+                    <p>Enter your new password below</p>
+                </div>
+
+                <div id="reset-message" class="auth-message"></div>
+
+                <form id="form-reset" autocomplete="on">
+                    <div class="form-group">
+                        <label class="form-label" for="reset-password">New Password</label>
+                        <input type="password" id="reset-password" name="password" placeholder="New password" required autocomplete="new-password">
+                        <div class="password-requirements">Minimum 8 characters</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reset-confirm">Confirm Password</label>
+                        <input type="password" id="reset-confirm" name="confirm" placeholder="Confirm new password" required autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="btn-auth" id="btn-reset">
+                        <span id="btn-reset-text">Reset Password</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="auth-footer">
+            <p>By signing up, you agree to DiagPilot's terms of service.</p>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        // Check if already logged in
+        const token = localStorage.getItem('diagpilot_token');
+        if (token) {
+            // Validate token
+            fetch('/api/auth/me', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            }).then(res => {
+                if (res.ok) {
+                    window.location.href = '/app.html';
+                } else {
+                    localStorage.removeItem('diagpilot_token');
+                }
+            }).catch(() => {});
+        }
+
+        // Check URL params
+        const params = new URLSearchParams(window.location.search);
+        const resetToken = params.get('reset');
+        const signupParam = params.get('signup');
+
+        if (resetToken) {
+            showScreen('reset');
+        } else if (signupParam === 'true') {
+            switchTab('signup');
+        }
+
+        // Tab switching
+        const tabs = document.querySelectorAll('.auth-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+        });
+
+        function switchTab(tabName) {
+            tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+            document.getElementById('form-login').classList.toggle('active', tabName === 'login');
+            document.getElementById('form-signup').classList.toggle('active', tabName === 'signup');
+            clearMessage('auth-message');
+        }
+
+        // Screen switching
+        function showScreen(name) {
+            document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + name).classList.add('active');
+        }
+
+        // Forgot password link
+        document.getElementById('forgot-link').addEventListener('click', () => showScreen('forgot'));
+        document.getElementById('back-from-forgot').addEventListener('click', () => showScreen('auth'));
+
+        // Message helpers
+        function showMessage(elId, text, type) {
+            const el = document.getElementById(elId);
+            el.textContent = text;
+            el.className = 'auth-message ' + type;
+        }
+
+        function clearMessage(elId) {
+            const el = document.getElementById(elId);
+            el.className = 'auth-message';
+            el.textContent = '';
+        }
+
+        function setLoading(btnId, textId, loading, loadingText) {
+            const btn = document.getElementById(btnId);
+            const text = document.getElementById(textId);
+            btn.disabled = loading;
+            text.innerHTML = loading
+                ? '<span class="spinner"></span> ' + (loadingText || 'Loading...')
+                : text.dataset.original || text.textContent;
+            if (!loading && !text.dataset.original) return;
+            if (!text.dataset.original) text.dataset.original = text.textContent;
+        }
+
+        // LOGIN
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage('auth-message');
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                showMessage('auth-message', 'Please fill in all fields.', 'error');
+                return;
+            }
+
+            setLoading('btn-login', 'btn-login-text', true, 'Signing in...');
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showMessage('auth-message', data.error || 'Login failed.', 'error');
+                    return;
+                }
+
+                localStorage.setItem('diagpilot_token', data.token);
+                localStorage.setItem('diagpilot_user', JSON.stringify(data.user));
+                window.location.href = '/app.html';
+            } catch (err) {
+                showMessage('auth-message', 'Connection error. Please try again.', 'error');
+            } finally {
+                setLoading('btn-login', 'btn-login-text', false);
+            }
+        });
+
+        // SIGNUP
+        document.getElementById('form-signup').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage('auth-message');
+
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+
+            if (!name || !email || !password) {
+                showMessage('auth-message', 'Please fill in all fields.', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                showMessage('auth-message', 'Password must be at least 8 characters.', 'error');
+                return;
+            }
+
+            setLoading('btn-signup', 'btn-signup-text', true, 'Creating account...');
+
+            try {
+                const res = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showMessage('auth-message', data.error || 'Signup failed.', 'error');
+                    return;
+                }
+
+                localStorage.setItem('diagpilot_token', data.token);
+                localStorage.setItem('diagpilot_user', JSON.stringify(data.user));
+                window.location.href = '/app.html';
+            } catch (err) {
+                showMessage('auth-message', 'Connection error. Please try again.', 'error');
+            } finally {
+                setLoading('btn-signup', 'btn-signup-text', false);
+            }
+        });
+
+        // FORGOT PASSWORD
+        document.getElementById('form-forgot').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage('forgot-message');
+
+            const email = document.getElementById('forgot-email').value.trim();
+            if (!email) {
+                showMessage('forgot-message', 'Please enter your email.', 'error');
+                return;
+            }
+
+            setLoading('btn-forgot', 'btn-forgot-text', true, 'Sending...');
+
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await res.json();
+                showMessage('forgot-message', data.message || 'If an account exists, a reset link has been sent.', 'success');
+            } catch (err) {
+                showMessage('forgot-message', 'Connection error. Please try again.', 'error');
+            } finally {
+                setLoading('btn-forgot', 'btn-forgot-text', false);
+            }
+        });
+
+        // RESET PASSWORD
+        document.getElementById('form-reset').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage('reset-message');
+
+            const password = document.getElementById('reset-password').value;
+            const confirm = document.getElementById('reset-confirm').value;
+
+            if (!password || !confirm) {
+                showMessage('reset-message', 'Please fill in all fields.', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                showMessage('reset-message', 'Password must be at least 8 characters.', 'error');
+                return;
+            }
+
+            if (password !== confirm) {
+                showMessage('reset-message', 'Passwords do not match.', 'error');
+                return;
+            }
+
+            setLoading('btn-reset', 'btn-reset-text', true, 'Resetting...');
+
+            try {
+                const res = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: resetToken, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showMessage('reset-message', data.error || 'Reset failed.', 'error');
+                    return;
+                }
+
+                showMessage('reset-message', 'Password reset successfully! Redirecting to sign in...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/auth.html';
+                }, 2000);
+            } catch (err) {
+                showMessage('reset-message', 'Connection error. Please try again.', 'error');
+            } finally {
+                setLoading('btn-reset', 'btn-reset-text', false);
+            }
+        });
+    })();
+    </script>
+
+    <!-- Polsia Analytics -->
+    <script>
+    (function() {
+        var slug = 'diagpilot';
+        if (!slug) return;
+        var vid = localStorage.getItem('polsia_vid');
+        if (!vid) {
+            vid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0;
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+            localStorage.setItem('polsia_vid', vid);
+        }
+        new Image().src = 'https://polsia.com/api/beacon/pixel?s=' + encodeURIComponent(slug) + '&v=' + encodeURIComponent(vid);
+    })();
+    </script>
+</body>
+</html>

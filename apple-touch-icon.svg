@@ -1,0 +1,26 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="180" height="180" rx="40" fill="#0a0e17"/>
+
+  <!-- Wrench body diagonal stroke -->
+  <path d="M42 140 L118 44" stroke="#22d3ee" stroke-width="18" stroke-linecap="round"/>
+
+  <!-- Wrench jaw (open-end) -->
+  <path d="M118 44 C118 44 144 28 152 40 C160 52 142 72 142 72 L118 44Z" fill="#22d3ee"/>
+
+  <!-- Handle knob circle -->
+  <circle cx="42" cy="140" r="14" fill="#22d3ee"/>
+
+  <!-- Circuit traces from knob -->
+  <path d="M42 140 L22 160" stroke="#f97316" stroke-width="7" stroke-linecap="round"/>
+  <path d="M22 160 L22 170 L44 170" stroke="#f97316" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Neural node dots -->
+  <circle cx="22" cy="170" r="8" fill="#f97316"/>
+  <circle cx="44" cy="170" r="8" fill="#f97316" opacity="0.6"/>
+  <circle cx="60" cy="170" r="8" fill="#f97316" opacity="0.35"/>
+
+  <!-- Subtle mid-trace detail -->
+  <path d="M90 88 L110 108 L110 135 L90 135" stroke="#22d3ee" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+  <circle cx="90" cy="135" r="7" fill="#22d3ee" opacity="0.4"/>
+</svg>

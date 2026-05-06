@@ -1,0 +1,25 @@
+<svg width="180" height="40" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Logo mark: wrench + circuit node icon (36x36, centered in 40px height) -->
+  <g transform="translate(2, 2)">
+    <!-- Wrench body -->
+    <path d="M10 28 L22 10" stroke="#22d3ee" stroke-width="4" stroke-linecap="round"/>
+    <!-- Wrench jaw top -->
+    <path d="M22 10 C22 10 28 6 30 8 C32 10 28 14 28 14 L22 10Z" fill="#22d3ee"/>
+    <!-- Wrench handle end knob -->
+    <circle cx="10" cy="28" r="3" fill="#22d3ee"/>
+    <!-- Circuit trace branching from handle -->
+    <path d="M10 28 L4 32 L4 34" stroke="#f97316" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M4 34 L7 34" stroke="#f97316" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Neural node dots -->
+    <circle cx="4" cy="34" r="1.5" fill="#f97316"/>
+    <circle cx="7" cy="34" r="1.5" fill="#f97316" opacity="0.6"/>
+    <circle cx="1" cy="34" r="1.5" fill="#f97316" opacity="0.4"/>
+    <!-- Circuit trace from wrench mid -->
+    <path d="M16 19 L20 23 L20 30 L16 30" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+    <circle cx="16" cy="30" r="1.5" fill="#22d3ee" opacity="0.5"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="46" y="26" font-family="'Space Grotesk', system-ui, sans-serif" font-size="18" font-weight="700" fill="#f1f5f9" letter-spacing="-0.5">Diag</text>
+  <text x="86" y="26" font-family="'Space Grotesk', system-ui, sans-serif" font-size="18" font-weight="700" fill="#22d3ee" letter-spacing="-0.5">Pilot</text>
+</svg>

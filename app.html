@@ -1,0 +1,2720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiagPilot - Start Diagnostic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-card: #111827;
+            --bg-card-hover: #1a2234;
+            --accent: #22d3ee;
+            --accent-dim: rgba(34, 211, 238, 0.15);
+            --accent-glow: rgba(34, 211, 238, 0.25);
+            --orange: #f97316;
+            --orange-dim: rgba(249, 115, 22, 0.15);
+            --green: #22c55e;
+            --green-dim: rgba(34, 197, 94, 0.15);
+            --red: #ef4444;
+            --red-dim: rgba(239, 68, 68, 0.15);
+            --yellow: #eab308;
+            --yellow-dim: rgba(234, 179, 8, 0.15);
+            --purple: #a855f7;
+            --purple-dim: rgba(168, 85, 247, 0.15);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-dim: #64748b;
+            --border: rgba(148, 163, 184, 0.1);
+            --border-accent: rgba(34, 211, 238, 0.2);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Nav */
+        nav {
+            padding: 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 32px;
+            width: auto;
+            display: block;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-dim);
+            border: 1px solid var(--border-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .nav-user-name {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            font-size: 0.8rem;
+            padding: 6px 14px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            border-color: var(--red);
+            color: var(--red);
+            background: var(--red-dim);
+        }
+
+        .nav-back {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+
+        .nav-back:hover { color: var(--accent); }
+
+        /* Screens */
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* ===== VEHICLE SELECTOR ===== */
+        .selector-header {
+            text-align: center;
+            padding: 60px 0 40px;
+        }
+
+        .selector-header h1 {
+            font-size: 2rem;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+
+        .selector-header h1 .highlight {
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .selector-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .vehicle-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        /* Engine dropdown: hidden until engines are available for the selection */
+        .form-group.engine-hidden {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        select, input, textarea {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 5.646a.5.5 0 0 1 .708 0L8 8.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+
+        select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .symptom-hints {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .symptom-hint {
+            font-size: 0.78rem;
+            padding: 6px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .symptom-hint:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            color: var(--bg-dark);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            letter-spacing: -0.3px;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(34, 211, 238, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(10, 14, 23, 0.3);
+            border-top-color: var(--bg-dark);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== DIAGNOSTIC FLOW ===== */
+        .flow-container {
+            padding: 40px 0 80px;
+        }
+
+        .flow-vehicle-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 32px;
+        }
+
+        .flow-vehicle-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .vehicle-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--accent-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .vehicle-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .vehicle-symptom {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .flow-status {
+            font-size: 0.75rem;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .flow-status.active {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .flow-status.complete {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        /* Steps timeline */
+        .steps-timeline {
+            position: relative;
+        }
+
+        .step-item {
+            position: relative;
+            padding-left: 48px;
+            padding-bottom: 32px;
+        }
+
+        .step-item:last-child {
+            padding-bottom: 0;
+        }
+
+        /* Timeline line */
+        .step-item::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 32px;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .step-item:last-child::before {
+            display: none;
+        }
+
+        /* Step number circle */
+        .step-marker {
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .step-item.completed .step-marker {
+            background: var(--green);
+            color: var(--bg-dark);
+        }
+
+        .step-item.active .step-marker {
+            background: var(--accent);
+            color: var(--bg-dark);
+            box-shadow: 0 0 0 4px var(--accent-dim);
+        }
+
+        .step-item.pending .step-marker {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            color: var(--text-dim);
+        }
+
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            transition: border-color 0.3s;
+        }
+
+        .step-item.active .step-card {
+            border-color: var(--border-accent);
+        }
+
+        .step-item.completed .step-card {
+            opacity: 0.7;
+        }
+
+        .step-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .step-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .tool-badge {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .tool-badge.multimeter { background: var(--yellow-dim); color: var(--yellow); }
+        .tool-badge.scan_tool { background: var(--purple-dim); color: var(--purple); }
+        .tool-badge.visual { background: var(--accent-dim); color: var(--accent); }
+        .tool-badge.test_light { background: var(--orange-dim); color: var(--orange); }
+        .tool-badge.none { display: none; }
+
+        .step-instruction {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 16px;
+            white-space: pre-line;
+        }
+
+        .expected-values {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: rgba(34, 197, 94, 0.06);
+            border: 1px solid rgba(34, 197, 94, 0.15);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--green);
+            margin-bottom: 16px;
+        }
+
+        .expected-values::before {
+            content: '\u2713';
+            font-weight: 700;
+        }
+
+        .safety-warning {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--red-dim);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #fca5a5;
+            margin-bottom: 16px;
+        }
+
+        .safety-warning::before {
+            content: '\u26A0';
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* Input area for current step */
+        .step-input-area {
+            margin-top: 16px;
+        }
+
+        .step-input-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-row input,
+        .input-row select {
+            flex: 1;
+        }
+
+        .btn-submit {
+            padding: 14px 28px;
+            background: var(--accent);
+            color: var(--bg-dark);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-submit:hover {
+            box-shadow: 0 4px 20px rgba(34, 211, 238, 0.3);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .yes-no-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-yes, .btn-no {
+            flex: 1;
+            padding: 14px 20px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .btn-yes:hover {
+            border-color: var(--green);
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        .btn-no:hover {
+            border-color: var(--red);
+            background: var(--red-dim);
+            color: var(--red);
+        }
+
+        .select-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .select-option {
+            padding: 14px 18px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            text-align: left;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .select-option:hover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        /* User response display (completed steps) */
+        .user-response {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: rgba(34, 211, 238, 0.06);
+            border: 1px solid rgba(34, 211, 238, 0.15);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .user-response .label {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-response .value {
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 600;
+        }
+
+        /* Diagnosis result */
+        .diagnosis-card {
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.08), rgba(34, 197, 94, 0.08));
+            border: 1px solid rgba(34, 211, 238, 0.25);
+            border-radius: 16px;
+            padding: 32px;
+            margin-top: 8px;
+        }
+
+        .diagnosis-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+        }
+
+        .diagnosis-explanation {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .diagnosis-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .diagnosis-stat {
+            padding: 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .diagnosis-stat .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .diagnosis-stat .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .diagnosis-next-steps {
+            margin-top: 16px;
+        }
+
+        .diagnosis-next-steps h4 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .diagnosis-next-steps ol {
+            padding-left: 20px;
+        }
+
+        .diagnosis-next-steps li {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            padding: 4px 0;
+        }
+
+        .btn-new-diagnostic {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding: 14px 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-new-diagnostic:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Loading indicator */
+        .step-loading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-accent);
+            border-radius: 14px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .step-loading .dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .step-loading .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: dotPulse 1.4s infinite ease-in-out;
+        }
+
+        .step-loading .dot:nth-child(2) { animation-delay: 0.2s; }
+        .step-loading .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .form-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .diagnosis-stats {
+                grid-template-columns: 1fr;
+            }
+            .selector-header h1 {
+                font-size: 1.6rem;
+            }
+            .input-row {
+                flex-direction: column;
+            }
+        }
+
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* ===== WIRING DIAGRAM EMBED ===== */
+        .step-diagram {
+            margin: 16px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(34, 211, 238, 0.15);
+            background: #070b12;
+            position: relative;
+        }
+
+        .step-diagram-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: rgba(34, 211, 238, 0.06);
+            border-bottom: 1px solid rgba(34, 211, 238, 0.1);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .step-diagram-generic-note {
+            padding: 6px 14px;
+            font-size: 0.70rem;
+            color: #94a3b8;
+            background: rgba(148, 163, 184, 0.04);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .step-diagram-label::before {
+            content: '⚡';
+            font-size: 0.85rem;
+        }
+
+        .diagram-img-container {
+            position: relative;
+            overflow: hidden;
+            cursor: zoom-in;
+            max-height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .diagram-img-container.zoomed {
+            cursor: zoom-out;
+            max-height: none;
+            max-height: 75vh;
+        }
+
+        .step-diagram-img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 320px;
+            object-fit: contain;
+            transition: transform 0.2s ease;
+            touch-action: pan-y pinch-zoom;
+            user-select: none;
+        }
+
+        .diagram-img-container.zoomed .step-diagram-img {
+            max-height: none;
+            width: 100%;
+        }
+
+        .diagram-zoom-hint {
+            position: absolute;
+            bottom: 8px;
+            right: 10px;
+            font-size: 0.68rem;
+            color: rgba(148, 163, 184, 0.6);
+            background: rgba(10, 14, 23, 0.7);
+            padding: 3px 8px;
+            border-radius: 100px;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .diagram-img-container.zoomed .diagram-zoom-hint {
+            opacity: 0;
+        }
+
+        /* ===== PART LOCATION PANEL ===== */
+        .part-location-panel {
+            margin-top: 12px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .part-location-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(168, 85, 247, 0.08);
+            border: none;
+            cursor: pointer;
+            color: var(--purple);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            text-align: left;
+            transition: background 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .part-location-toggle:hover {
+            background: rgba(168, 85, 247, 0.14);
+        }
+
+        .part-location-toggle .toggle-arrow {
+            margin-left: auto;
+            font-size: 0.75rem;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .part-location-panel.open .toggle-arrow {
+            transform: rotate(180deg);
+        }
+
+        .part-location-content {
+            display: none;
+            padding: 14px;
+            background: rgba(168, 85, 247, 0.04);
+            border-top: 1px solid rgba(168, 85, 247, 0.15);
+        }
+
+        .part-location-panel.open .part-location-content {
+            display: block;
+        }
+
+        .part-location-description {
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .part-location-access {
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            line-height: 1.5;
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .part-location-access::before {
+            content: '🔧 Access tip: ';
+            font-weight: 600;
+            color: var(--orange);
+        }
+
+        .part-location-loading {
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            padding: 4px 0;
+        }
+
+        .part-location-notfound {
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            font-style: italic;
+        }
+
+        /* ===== JARGON TOOLTIPS ===== */
+        .jargon-section {
+            margin-top: 14px;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        .jargon-section-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .jargon-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .jargon-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            background: rgba(234, 179, 8, 0.08);
+            border: 1px solid rgba(234, 179, 8, 0.2);
+            border-radius: 100px;
+            font-size: 0.78rem;
+            color: var(--yellow);
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            transition: all 0.15s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .jargon-pill:hover {
+            background: rgba(234, 179, 8, 0.16);
+            border-color: rgba(234, 179, 8, 0.35);
+        }
+
+        .jargon-pill .pill-icon {
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
+        .jargon-expand {
+            display: none;
+            padding: 10px 14px;
+            margin-top: 4px;
+            background: rgba(234, 179, 8, 0.05);
+            border: 1px solid rgba(234, 179, 8, 0.15);
+            border-radius: 8px;
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+
+        .jargon-expand.open {
+            display: block;
+        }
+
+        .jargon-expand strong {
+            color: var(--yellow);
+            font-weight: 600;
+        }
+
+        /* ===== PAYWALL ===== */
+        .paywall-container {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .paywall-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 28px;
+            font-weight: 500;
+        }
+
+        .paywall-container h1 {
+            font-size: 2rem;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .paywall-container h1 .highlight {
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .paywall-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 36px;
+            line-height: 1.6;
+        }
+
+        .paywall-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-accent);
+            border-radius: 20px;
+            padding: 40px 32px;
+            position: relative;
+            text-align: left;
+        }
+
+        .paywall-card::after {
+            content: '';
+            position: absolute;
+            top: -1px; left: 40px; right: 40px; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        .paywall-plan-name {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .paywall-price {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-bottom: 4px;
+        }
+
+        .paywall-price .period {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0;
+        }
+
+        .paywall-features {
+            list-style: none;
+            margin: 24px 0 32px;
+        }
+
+        .paywall-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .paywall-features li::before {
+            content: '\2713';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            background: var(--green-dim);
+            color: var(--green);
+            border-radius: 50%;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .btn-subscribe {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 18px 32px;
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            color: var(--bg-dark);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            letter-spacing: -0.3px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-subscribe:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(34, 211, 238, 0.35);
+        }
+
+        .paywall-guarantee {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* Subscription status badge in nav */
+        .sub-badge {
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sub-badge.active {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        .sub-badge.inactive {
+            background: var(--orange-dim);
+            color: var(--orange);
+        }
+
+        .btn-manage-sub {
+            font-size: 0.8rem;
+            padding: 6px 14px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: none;
+        }
+
+        .btn-manage-sub:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .sub-badge.past_due {
+            background: var(--red-dim);
+            color: var(--red);
+        }
+
+        .past-due-banner {
+            background: var(--red-dim);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .past-due-banner p {
+            color: #fca5a5;
+            font-size: 0.88rem;
+            margin: 0;
+        }
+
+        .past-due-banner a {
+            color: var(--red);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .past-due-banner a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== SYSTEM REFERENCE PANEL ===== */
+        .sys-ref-panel {
+            margin-top: 16px;
+            border: 1px solid rgba(249, 115, 22, 0.25);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .sys-ref-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(249, 115, 22, 0.08);
+            border: none;
+            cursor: pointer;
+            color: var(--orange);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            text-align: left;
+            transition: background 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .sys-ref-toggle:hover { background: rgba(249, 115, 22, 0.14); }
+
+        .sys-ref-toggle .sys-toggle-arrow {
+            margin-left: auto;
+            font-size: 0.75rem;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .sys-ref-panel.open .sys-toggle-arrow { transform: rotate(180deg); }
+
+        .sys-ref-body {
+            display: none;
+            background: rgba(249, 115, 22, 0.03);
+            border-top: 1px solid rgba(249, 115, 22, 0.15);
+        }
+
+        .sys-ref-panel.open .sys-ref-body { display: block; }
+
+        .sys-ref-description {
+            padding: 14px 16px 12px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Tabs */
+        .sys-ref-tabs {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+            border-bottom: 1px solid var(--border);
+            padding: 0 4px;
+            gap: 2px;
+        }
+
+        .sys-ref-tabs::-webkit-scrollbar { display: none; }
+
+        .sys-ref-tab {
+            flex-shrink: 0;
+            padding: 10px 14px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+            border: none;
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .sys-ref-tab:hover { color: var(--orange); }
+        .sys-ref-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+
+        /* Component panel */
+        .sys-ref-component {
+            display: none;
+            padding: 16px;
+        }
+
+        .sys-ref-component.active { display: block; }
+
+        .comp-description {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        .comp-location {
+            display: flex;
+            gap: 8px;
+            padding: 10px 14px;
+            background: rgba(234, 179, 8, 0.07);
+            border: 1px solid rgba(234, 179, 8, 0.2);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        .comp-location-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* Pinout table */
+        .pinout-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .pinout-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        .pinout-table th {
+            text-align: left;
+            padding: 7px 10px;
+            color: var(--text-dim);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .pinout-table td {
+            padding: 9px 10px;
+            vertical-align: top;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.06);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .pinout-table tr:last-child td { border-bottom: none; }
+
+        .pin-number {
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 700;
+            color: var(--orange);
+            font-size: 0.88rem;
+            white-space: nowrap;
+        }
+
+        .pin-color {
+            white-space: nowrap;
+            font-family: 'Space Grotesk', monospace;
+            font-size: 0.8rem;
+        }
+
+        .pin-signal {
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        .pin-desc {
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            line-height: 1.4;
+        }
+
+        .sys-ref-no-pins {
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            font-style: italic;
+            padding: 8px 0;
+        }
+
+        .sys-ref-loading {
+            padding: 16px;
+            color: var(--text-dim);
+            font-size: 0.82rem;
+        }
+
+        /* Verifying subscription spinner */
+        .paywall-verifying {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 60px 0;
+        }
+
+        .paywall-verifying .spinner-lg {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--accent-dim);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .paywall-verifying p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/" class="logo"><img src="/diagpilot-logo.svg" alt="DiagPilot"></a>
+            <div class="nav-right">
+                <div class="nav-user" id="nav-user">
+                    <div class="nav-user-avatar" id="nav-avatar"></div>
+                    <span class="nav-user-name" id="nav-name"></span>
+                </div>
+                <span class="sub-badge" id="sub-badge" style="display:none;"></span>
+                <a href="/api/subscription/manage" class="btn-manage-sub" id="btn-manage-sub">Manage Plan</a>
+                <button class="btn-logout" id="btn-logout">Sign Out</button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- SCREEN 0: Subscription Paywall -->
+    <div id="screen-paywall" class="screen">
+        <div class="container">
+            <div class="paywall-container">
+                <div class="paywall-badge">Unlock full access</div>
+                <h1>Start diagnosing with <span class="highlight">DiagPilot Pro</span></h1>
+                <p class="paywall-subtitle">Get unlimited AI-powered diagnostic flowcharts for any vehicle. Professional-grade repair guidance at DIY prices.</p>
+
+                <div class="paywall-card">
+                    <div class="paywall-plan-name">AI Diagnostics Plan</div>
+                    <div class="paywall-price">$9.99 <span class="period">/month</span></div>
+                    <ul class="paywall-features">
+                        <li>Unlimited AI diagnostic flowcharts</li>
+                        <li>Any year, make, and model supported</li>
+                        <li>Step-by-step interactive repair walks</li>
+                        <li>Tool recommendations and expected values</li>
+                        <li>Diagnosis with cost estimates and difficulty</li>
+                        <li>Cancel anytime</li>
+                    </ul>
+                    <a href="#" class="btn-subscribe" id="btn-subscribe">
+                        Subscribe &mdash; $9.99/month
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                    </a>
+                    <p class="paywall-guarantee">Secure payment via Stripe. Cancel anytime.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 0.5: Verifying subscription after payment -->
+    <div id="screen-verifying" class="screen">
+        <div class="container">
+            <div class="paywall-verifying">
+                <div class="spinner-lg"></div>
+                <p>Activating your subscription...</p>
+                <p style="font-size: 0.82rem; color: var(--text-dim);">This usually takes just a few seconds.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 1: Vehicle Selector + Symptom -->
+    <div id="screen-selector" class="screen">
+        <div class="container">
+            <div class="selector-header">
+                <h1>Start a <span class="highlight">Diagnostic</span></h1>
+                <p>Select your vehicle and describe the problem. We'll walk you through it step by step.</p>
+            </div>
+
+            <div class="vehicle-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <select id="sel-year">
+                            <option value="">Year</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Make</label>
+                        <select id="sel-make" disabled>
+                            <option value="">Make</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Model</label>
+                        <select id="sel-model" disabled>
+                            <option value="">Model</option>
+                        </select>
+                    </div>
+                    <div class="form-group engine-hidden" id="engine-group">
+                        <label class="form-label">Engine</label>
+                        <select id="sel-engine" disabled>
+                            <option value="">Engine</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group full" style="margin-bottom: 16px;">
+                    <label class="form-label">Describe the symptom</label>
+                    <textarea id="symptom-input" placeholder="e.g. Car won't start, makes a clicking sound when I turn the key..." disabled></textarea>
+                    <div class="symptom-hints" id="symptom-hints">
+                        <span class="symptom-hint" data-text="Car won't start - no crank, no sound">No start / no crank</span>
+                        <span class="symptom-hint" data-text="Engine cranks but won't start">Cranks but won't start</span>
+                        <span class="symptom-hint" data-text="Check engine light is on, rough idle">Check engine light on</span>
+                        <span class="symptom-hint" data-text="Car overheating, temperature gauge in the red">Overheating</span>
+                        <span class="symptom-hint" data-text="Brake pedal feels soft and spongy, car takes longer to stop">Soft brakes</span>
+                        <span class="symptom-hint" data-text="Grinding or squealing noise when braking">Brake noise</span>
+                        <span class="symptom-hint" data-text="AC is blowing warm air, not cooling">AC not cooling</span>
+                        <span class="symptom-hint" data-text="Battery keeps dying overnight">Battery draining</span>
+                    </div>
+                </div>
+
+                <button id="btn-start" class="btn-primary" disabled>
+                    <span id="btn-start-text">Start Diagnostic</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: Diagnostic Flow -->
+    <div id="screen-flow" class="screen">
+        <div class="container flow-container">
+            <div class="flow-vehicle-bar">
+                <div class="flow-vehicle-info">
+                    <div class="vehicle-icon">&#128663;</div>
+                    <div>
+                        <div class="vehicle-name" id="flow-vehicle-name"></div>
+                        <div class="vehicle-symptom" id="flow-symptom"></div>
+                    </div>
+                </div>
+                <div class="flow-status active" id="flow-status">Diagnosing</div>
+            </div>
+
+            <div class="steps-timeline" id="steps-container">
+                <!-- Steps render here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        // Stripe payment link — email + user ID pre-filled client-side after auth resolves
+        const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/3cI4gA14DeZOc5Uctd43S01';
+
+        // ===== AUTH CHECK =====
+        const authToken = localStorage.getItem('diagpilot_token');
+        if (!authToken) {
+            window.location.href = '/auth.html';
+            return;
+        }
+
+        // Screen management
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const el = document.getElementById(id);
+            if (el) el.classList.add('active');
+        }
+
+        // Hide all screens initially (will be shown after subscription check)
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+
+        let userSubscribed = false;
+        let currentUserId = null;
+
+        // Subscribe button href is set after auth resolves (needs email + user id)
+
+        // Validate token and check subscription
+        fetch('/api/auth/me', {
+            headers: { 'Authorization': 'Bearer ' + authToken }
+        }).then(res => {
+            if (!res.ok) {
+                localStorage.removeItem('diagpilot_token');
+                localStorage.removeItem('diagpilot_user');
+                window.location.href = '/auth.html';
+                return;
+            }
+            return res.json();
+        }).then(data => {
+            if (data && data.user) {
+                // Show user info in nav
+                const name = data.user.name || data.user.email;
+                const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+                document.getElementById('nav-avatar').textContent = initials;
+                document.getElementById('nav-name').textContent = name;
+
+                // Store userId for poll timeout paywall_view events
+                currentUserId = data.user.id;
+
+                // Build Stripe checkout URL client-side — pre-fill email + user ID.
+                // Cannot use server-side /checkout route because browser navigation
+                // doesn't send Authorization: Bearer headers; that route would 401.
+                const stripeUrl = new URL(STRIPE_PAYMENT_LINK);
+                stripeUrl.searchParams.set('prefilled_email', data.user.email);
+                stripeUrl.searchParams.set('client_reference_id', String(data.user.id));
+                document.getElementById('btn-subscribe').href = stripeUrl.toString();
+                // Log checkout_start when user clicks the subscribe button
+                document.getElementById('btn-subscribe').addEventListener('click', function() {
+                    fetch('/api/events/log', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+                        body: JSON.stringify({ eventType: 'checkout_start', metadata: { userId: data.user.id } })
+                    }).catch(function() {});
+                });
+
+                // Check subscription status
+                const subStatus = data.user.subscription_status;
+                userSubscribed = subStatus === 'active';
+
+                // Update subscription badge
+                const subBadge = document.getElementById('sub-badge');
+                const manageBtn = document.getElementById('btn-manage-sub');
+                if (userSubscribed) {
+                    subBadge.textContent = 'Pro';
+                    subBadge.className = 'sub-badge active';
+                    subBadge.style.display = '';
+                    manageBtn.style.display = 'inline-flex';
+                } else if (subStatus === 'past_due') {
+                    subBadge.textContent = 'Past Due';
+                    subBadge.className = 'sub-badge past_due';
+                    subBadge.style.display = '';
+                    manageBtn.style.display = 'inline-flex';
+                } else {
+                    subBadge.textContent = 'Free';
+                    subBadge.className = 'sub-badge inactive';
+                    subBadge.style.display = '';
+                    manageBtn.style.display = 'none';
+                }
+
+                // Check if returning from Stripe checkout
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('subscribed') === 'true' && !userSubscribed) {
+                    // Show verifying screen and poll for status change
+                    showScreen('screen-verifying');
+                    pollSubscriptionStatus();
+                    // Clean up URL
+                    window.history.replaceState({}, '', '/app.html');
+                    return;
+                }
+
+                // Show the right screen based on subscription
+                if (userSubscribed) {
+                    showScreen('screen-selector');
+                } else if (subStatus === 'past_due') {
+                    // Show diagnostic engine but with a warning banner
+                    showScreen('screen-selector');
+                    // Add past-due banner
+                    const selectorHeader = document.querySelector('.selector-header');
+                    if (selectorHeader && !document.querySelector('.past-due-banner')) {
+                        const banner = document.createElement('div');
+                        banner.className = 'past-due-banner';
+                        banner.innerHTML = '<p>Your payment is past due. Please update your payment method to continue accessing diagnostics.</p><a href="/api/subscription/manage">Update Payment &rarr;</a>';
+                        selectorHeader.parentNode.insertBefore(banner, selectorHeader);
+                    }
+                } else {
+                    // Log paywall_view: user sees the subscription gate
+                    fetch('/api/events/log', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+                        body: JSON.stringify({ eventType: 'paywall_view', metadata: { userId: data.user.id } })
+                    }).catch(function() {});
+                    showScreen('screen-paywall');
+                }
+            }
+        }).catch(() => {
+            // On error, show selector as fallback (API will gate anyway)
+            showScreen('screen-selector');
+        });
+
+        // Poll for subscription activation after Stripe checkout
+        function pollSubscriptionStatus(attempt) {
+            attempt = attempt || 0;
+            if (attempt >= 20) {
+                // After ~60 seconds, show a message
+                fetch('/api/events/log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+                    body: JSON.stringify({ eventType: 'paywall_view', metadata: { userId: currentUserId } })
+                }).catch(function() {});
+                showScreen('screen-paywall');
+                const badge = document.getElementById('sub-badge');
+                badge.textContent = 'Free';
+                badge.className = 'sub-badge inactive';
+                alert('Subscription is being processed. It may take a minute to activate. Please refresh the page shortly.');
+                return;
+            }
+
+            setTimeout(function() {
+                fetch('/api/subscription/status', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                }).then(res => res.json()).then(data => {
+                    if (data.has_subscription) {
+                        // Subscription activated!
+                        userSubscribed = true;
+                        const subBadge = document.getElementById('sub-badge');
+                        subBadge.textContent = 'Pro';
+                        subBadge.className = 'sub-badge active';
+                        document.getElementById('btn-manage-sub').style.display = 'inline-flex';
+                        showScreen('screen-selector');
+                    } else {
+                        pollSubscriptionStatus(attempt + 1);
+                    }
+                }).catch(() => {
+                    pollSubscriptionStatus(attempt + 1);
+                });
+            }, 3000); // Poll every 3 seconds
+        }
+
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', async () => {
+            try {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+            } catch (e) {}
+            localStorage.removeItem('diagpilot_token');
+            localStorage.removeItem('diagpilot_user');
+            window.location.href = '/auth.html';
+        });
+
+        // Helper to get auth headers
+        function authHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + authToken
+            };
+        }
+
+        // State
+        let sessionId = null;
+        let currentStepNumber = 0;
+        let steps = [];
+        let isLoading = false;
+        let vehicleText = '';
+        let symptomText = '';
+
+        // Elements
+        const selYear = document.getElementById('sel-year');
+        const selMake = document.getElementById('sel-make');
+        const selModel = document.getElementById('sel-model');
+        const selEngine = document.getElementById('sel-engine');
+        const engineGroup = document.getElementById('engine-group');
+        const symptomInput = document.getElementById('symptom-input');
+        const btnStart = document.getElementById('btn-start');
+        const btnStartText = document.getElementById('btn-start-text');
+        const screenSelector = document.getElementById('screen-selector');
+        const screenFlow = document.getElementById('screen-flow');
+        const stepsContainer = document.getElementById('steps-container');
+        const flowVehicleName = document.getElementById('flow-vehicle-name');
+        const flowSymptom = document.getElementById('flow-symptom');
+        const flowStatus = document.getElementById('flow-status');
+
+        // Load vehicle data
+        async function loadYears() {
+            const res = await fetch('/api/vehicles/years');
+            const data = await res.json();
+            data.years.forEach(y => {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                selYear.appendChild(opt);
+            });
+        }
+
+        async function loadMakes() {
+            const res = await fetch('/api/vehicles/makes');
+            const data = await res.json();
+            selMake.innerHTML = '<option value="">Make</option>';
+            data.makes.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m;
+                selMake.appendChild(opt);
+            });
+        }
+
+        async function loadModels(make) {
+            const res = await fetch('/api/vehicles/models?make=' + encodeURIComponent(make));
+            const data = await res.json();
+            selModel.innerHTML = '<option value="">Model</option>';
+            data.models.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m;
+                selModel.appendChild(opt);
+            });
+        }
+
+        async function loadEngines(make, model, year) {
+            // Reset engine state first
+            selEngine.innerHTML = '<option value="">Engine</option>';
+            selEngine.disabled = true;
+            engineGroup.classList.add('engine-hidden');
+
+            if (!make || !model || !year) return;
+
+            try {
+                const url = `/api/vehicles/engines?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${encodeURIComponent(year)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.engines && data.engines.length > 0) {
+                    data.engines.forEach(e => {
+                        const opt = document.createElement('option');
+                        opt.value = e.display_name;
+                        opt.textContent = e.display_name;
+                        selEngine.appendChild(opt);
+                    });
+                    // Show + enable — user must pick an engine
+                    engineGroup.classList.remove('engine-hidden');
+                    selEngine.disabled = false;
+                }
+                // No engines in DB → keep hidden, symptom unlocks normally
+            } catch (_) {
+                // Engine lookup failure is non-fatal — just hide the dropdown
+            }
+        }
+
+        // Init
+        loadYears();
+        loadMakes();
+
+        selYear.addEventListener('change', () => {
+            selMake.disabled = !selYear.value;
+            // Year change invalidates engine selection
+            selEngine.innerHTML = '<option value="">Engine</option>';
+            selEngine.disabled = true;
+            engineGroup.classList.add('engine-hidden');
+            symptomInput.disabled = true;
+            checkFormReady();
+        });
+
+        selMake.addEventListener('change', () => {
+            if (selMake.value) {
+                selModel.disabled = false;
+                loadModels(selMake.value);
+            } else {
+                selModel.disabled = true;
+                selModel.innerHTML = '<option value="">Model</option>';
+            }
+            // Reset engine + symptom when make changes
+            selEngine.innerHTML = '<option value="">Engine</option>';
+            selEngine.disabled = true;
+            engineGroup.classList.add('engine-hidden');
+            symptomInput.disabled = true;
+            checkFormReady();
+        });
+
+        selModel.addEventListener('change', () => {
+            if (selModel.value && selYear.value && selMake.value) {
+                loadEngines(selMake.value, selModel.value, selYear.value).then(() => {
+                    // If engine dropdown ended up hidden (no engines in DB), unlock symptom now
+                    if (engineGroup.classList.contains('engine-hidden')) {
+                        symptomInput.disabled = false;
+                    } else {
+                        // Wait for engine selection before unlocking symptom
+                        symptomInput.disabled = true;
+                    }
+                    checkFormReady();
+                });
+            } else {
+                symptomInput.disabled = true;
+                engineGroup.classList.add('engine-hidden');
+                checkFormReady();
+            }
+        });
+
+        selEngine.addEventListener('change', () => {
+            // Once an engine is selected, unlock the symptom field
+            symptomInput.disabled = !selEngine.value;
+            checkFormReady();
+        });
+
+        symptomInput.addEventListener('input', checkFormReady);
+
+        // Symptom hints
+        document.getElementById('symptom-hints').addEventListener('click', (e) => {
+            if (e.target.classList.contains('symptom-hint')) {
+                symptomInput.value = e.target.dataset.text;
+                symptomInput.disabled = false;
+                checkFormReady();
+                symptomInput.focus();
+            }
+        });
+
+        function checkFormReady() {
+            const engineRequired = !engineGroup.classList.contains('engine-hidden');
+            const engineOk = !engineRequired || selEngine.value;
+            const ready = selYear.value && selMake.value && selModel.value
+                          && engineOk && symptomInput.value.trim().length > 5;
+            btnStart.disabled = !ready;
+        }
+
+        // Start diagnostic
+        btnStart.addEventListener('click', startDiagnostic);
+
+        async function startDiagnostic() {
+            if (isLoading) return;
+            isLoading = true;
+            btnStart.disabled = true;
+            btnStartText.innerHTML = '<span class="spinner"></span> Analyzing...';
+
+            try {
+                const res = await fetch('/api/diagnose/start', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({
+                        year: parseInt(selYear.value),
+                        make: selMake.value,
+                        model: selModel.value,
+                        engine: selEngine.value || undefined,
+                        symptom: symptomInput.value.trim()
+                    })
+                });
+
+                const data = await res.json();
+                if (res.status === 403 && data.subscribe_url) {
+                    // Subscription expired or missing
+                    showScreen('screen-paywall');
+                    const subBadge = document.getElementById('sub-badge');
+                    subBadge.textContent = 'Free';
+                    subBadge.className = 'sub-badge inactive';
+                    return;
+                }
+                if (!res.ok) throw new Error(data.error);
+
+                sessionId = data.session_id;
+                vehicleText = data.vehicle;
+                symptomText = data.symptom;
+                currentStepNumber = 1;
+                steps = [{ ...data.step, status: 'active' }];
+
+                // Switch to flow screen
+                screenSelector.classList.remove('active');
+                screenFlow.classList.add('active');
+                flowVehicleName.textContent = vehicleText;
+                flowSymptom.textContent = symptomText;
+
+                renderSteps();
+            } catch (err) {
+                alert('Failed to start diagnostic: ' + err.message);
+            } finally {
+                isLoading = false;
+                btnStartText.textContent = 'Start Diagnostic';
+                checkFormReady();
+            }
+        }
+
+        // ── System Reference Panel ────────────────────────────────────────────
+        // Maps keywords in step instructions → system slugs for contextual reference.
+        const SYSTEM_KEYWORDS = {
+            'ignition coil': 'ignition', 'coil pack': 'ignition', 'coil-on-plug': 'ignition',
+            'cop coil': 'ignition', 'spark plug': 'ignition', 'ignition system': 'ignition',
+            'crankshaft position': 'ignition', 'ckp sensor': 'ignition', 'crank sensor': 'ignition',
+            'camshaft position': 'ignition', 'cmp sensor': 'ignition', 'cam sensor': 'ignition',
+            'ignition timing': 'ignition', 'misfire': 'ignition', 'p030': 'ignition',
+            'p0351': 'ignition', 'p0352': 'ignition', 'p0353': 'ignition', 'p0354': 'ignition',
+            'p0335': 'ignition', 'p0340': 'ignition',
+        };
+
+        // Cache: slug → system data (to avoid re-fetching)
+        const systemCache = {};
+
+        function detectSystemInInstruction(instruction) {
+            const lower = instruction.toLowerCase();
+            const sorted = Object.keys(SYSTEM_KEYWORDS).sort((a, b) => b.length - a.length);
+            for (const kw of sorted) {
+                if (lower.includes(kw)) return SYSTEM_KEYWORDS[kw];
+            }
+            return null;
+        }
+
+        function renderSystemRefPanel(slug) {
+            return (
+                '<div class="sys-ref-panel" data-sys-slug="' + escapeAttr(slug) + '">' +
+                    '<button class="sys-ref-toggle" onclick="toggleSysRef(this)">' +
+                        '<span>📋 System Reference — ' + escapeHtml(slug.charAt(0).toUpperCase() + slug.slice(1)) + ' System</span>' +
+                        '<span class="sys-toggle-arrow">▼</span>' +
+                    '</button>' +
+                    '<div class="sys-ref-body">' +
+                        '<div class="sys-ref-loading">Loading system reference data...</div>' +
+                    '</div>' +
+                '</div>'
+            );
+        }
+
+        async function toggleSysRef(btn) {
+            const panel = btn.closest('.sys-ref-panel');
+            const body = panel.querySelector('.sys-ref-body');
+            const isOpen = panel.classList.contains('open');
+
+            if (isOpen) { panel.classList.remove('open'); return; }
+            panel.classList.add('open');
+
+            if (body.dataset.loaded) return;
+            body.dataset.loaded = '1';
+
+            const slug = panel.dataset.sysSlug;
+            const make = selMake.value;
+            const model = selModel.value;
+            const year = selYear.value;
+
+            try {
+                let system = systemCache[slug + '|' + make + '|' + model + '|' + year];
+                if (!system) {
+                    const params = new URLSearchParams({ make, model, year });
+                    const res = await fetch('/api/vehicle-systems/' + encodeURIComponent(slug) + '?' + params.toString(), {
+                        headers: { 'Authorization': 'Bearer ' + authToken }
+                    });
+                    if (!res.ok) throw new Error('not found');
+                    const data = await res.json();
+                    system = data.system;
+                    systemCache[slug + '|' + make + '|' + model + '|' + year] = system;
+                }
+                body.innerHTML = renderSystemBody(system);
+            } catch (err) {
+                body.innerHTML = '<div class="sys-ref-loading">No reference data available for this system yet.</div>';
+            }
+        }
+
+        function renderSystemBody(system) {
+            const comps = system.components || [];
+            let html = '';
+
+            if (system.description) {
+                html += '<div class="sys-ref-description">' + escapeHtml(system.description) + '</div>';
+            }
+
+            if (comps.length === 0) {
+                html += '<div class="sys-ref-loading">No component data available.</div>';
+                return html;
+            }
+
+            // Tabs
+            html += '<div class="sys-ref-tabs">';
+            comps.forEach((comp, idx) => {
+                const active = idx === 0 ? ' active' : '';
+                html += '<button class="sys-ref-tab' + active + '" onclick="switchSysTab(this,' + idx + ')">' +
+                    escapeHtml(comp.name.length > 28 ? comp.name.slice(0, 26) + '…' : comp.name) +
+                    '</button>';
+            });
+            html += '</div>';
+
+            // Component panes
+            comps.forEach((comp, idx) => {
+                const active = idx === 0 ? ' active' : '';
+                html += '<div class="sys-ref-component' + active + '">';
+
+                if (comp.description) {
+                    html += '<div class="comp-description">' + escapeHtml(comp.description) + '</div>';
+                }
+
+                if (comp.location) {
+                    html += '<div class="comp-location"><span class="comp-location-icon">📍</span><span>' + escapeHtml(comp.location) + '</span></div>';
+                }
+
+                const pins = comp.pins || [];
+                if (pins.length > 0) {
+                    html += '<div class="pinout-label">Connector Pinout</div>';
+                    html += '<table class="pinout-table"><thead><tr>' +
+                        '<th>Pin</th><th>Wire Color</th><th>Signal</th><th>Description / Expected</th>' +
+                        '</tr></thead><tbody>';
+                    pins.forEach(pin => {
+                        html += '<tr>' +
+                            '<td><span class="pin-number">' + escapeHtml(pin.pin_number) + '</span></td>' +
+                            '<td><span class="pin-color">' + escapeHtml(pin.wire_color || '—') + '</span></td>' +
+                            '<td><span class="pin-signal">' + escapeHtml(pin.signal_name || '—') + '</span></td>' +
+                            '<td><span class="pin-desc">' + escapeHtml(pin.description || '') + '</span></td>' +
+                            '</tr>';
+                    });
+                    html += '</tbody></table>';
+                } else {
+                    html += '<div class="sys-ref-no-pins">No pinout data for this component yet.</div>';
+                }
+
+                html += '</div>';
+            });
+
+            return html;
+        }
+
+        function switchSysTab(btn, idx) {
+            const body = btn.closest('.sys-ref-body');
+            body.querySelectorAll('.sys-ref-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+            body.querySelectorAll('.sys-ref-component').forEach((c, i) => c.classList.toggle('active', i === idx));
+        }
+
+        // ── Part location detection ──────────────────────────────────────────
+        const PART_KEYWORDS = {
+            'crankshaft position sensor': 'Crankshaft Position Sensor',
+            'crank sensor': 'Crankshaft Position Sensor',
+            'ckp sensor': 'Crankshaft Position Sensor',
+            'camshaft position sensor': 'Camshaft Position Sensor',
+            'cam sensor': 'Camshaft Position Sensor',
+            'cmp sensor': 'Camshaft Position Sensor',
+            'oxygen sensor': 'O2 Sensor',
+            'o2 sensor': 'O2 Sensor',
+            'air/fuel sensor': 'O2 Sensor',
+            'air fuel ratio sensor': 'O2 Sensor',
+            'mass airflow sensor': 'MAF Sensor',
+            'maf sensor': 'MAF Sensor',
+            'idle air control': 'IAC Valve',
+            'iac valve': 'IAC Valve',
+            'throttle position sensor': 'Throttle Position Sensor',
+            'tps sensor': 'Throttle Position Sensor',
+            'map sensor': 'MAP Sensor',
+            'manifold absolute pressure': 'MAP Sensor',
+            'fuel pump relay': 'Fuel Pump Relay',
+            'fuel pump': 'Fuel Pump',
+            'egr valve': 'EGR Valve',
+            'pcv valve': 'PCV Valve',
+            'ignition coil': 'Ignition Coil',
+            'coil pack': 'Ignition Coil',
+            'spark plug': 'Spark Plugs',
+            'thermostat': 'Thermostat',
+            'coolant temperature sensor': 'Coolant Temperature Sensor',
+            'ect sensor': 'Coolant Temperature Sensor',
+            'engine coolant temp': 'Coolant Temperature Sensor',
+            'battery': 'Battery',
+            'alternator': 'Alternator',
+            'starter motor': 'Starter Motor',
+            'starter solenoid': 'Starter Motor',
+            'catalytic converter': 'Catalytic Converter',
+            'knock sensor': 'Knock Sensor'
+        };
+
+        function detectPartInInstruction(instruction) {
+            const lower = instruction.toLowerCase();
+            // Sort by length descending so multi-word phrases match first
+            const sorted = Object.keys(PART_KEYWORDS).sort((a, b) => b.length - a.length);
+            for (const keyword of sorted) {
+                if (lower.includes(keyword)) return PART_KEYWORDS[keyword];
+            }
+            return null;
+        }
+
+        function renderPartLocationPanel(partName) {
+            const safePartName = partName.replace(/"/g, '&quot;');
+            return (
+                '<div class="part-location-panel" data-part="' + safePartName + '">' +
+                    '<button class="part-location-toggle" onclick="togglePartLocation(this)">' +
+                        '<span>📍 Where is the ' + escapeHtml(partName) + '?</span>' +
+                        '<span class="toggle-arrow">▼</span>' +
+                    '</button>' +
+                    '<div class="part-location-content">' +
+                        '<div class="part-location-loading">Looking up location data...</div>' +
+                    '</div>' +
+                '</div>'
+            );
+        }
+
+        // Exposed globally for onclick handlers in injected HTML
+        window.toggleJargon = function(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('open');
+        };
+
+        async function togglePartLocation(btn) {
+            const panel = btn.closest('.part-location-panel');
+            const content = panel.querySelector('.part-location-content');
+            const isOpen = panel.classList.contains('open');
+
+            if (isOpen) {
+                panel.classList.remove('open');
+                return;
+            }
+
+            panel.classList.add('open');
+
+            // Only fetch once
+            if (content.dataset.loaded) return;
+            content.dataset.loaded = '1';
+
+            const partName = panel.dataset.part;
+            const make = selMake.value;
+            const model = selModel.value;
+            const year = selYear.value;
+
+            try {
+                const params = new URLSearchParams({ part: partName });
+                if (make) params.set('make', make);
+                if (model) params.set('model', model);
+                if (year) params.set('year', year);
+
+                const res = await fetch('/api/part-locations?' + params.toString());
+                const data = await res.json();
+
+                if (!data.found) {
+                    content.innerHTML = '<div class="part-location-notfound">No specific location data for this part/vehicle yet. Refer to a vehicle-specific service manual.</div>';
+                    return;
+                }
+
+                let html = '<div class="part-location-description">' + escapeHtml(data.description) + '</div>';
+                if (data.access_notes) {
+                    html += '<div class="part-location-access">' + escapeHtml(data.access_notes) + '</div>';
+                }
+                content.innerHTML = html;
+            } catch (err) {
+                content.innerHTML = '<div class="part-location-notfound">Could not load location data.</div>';
+            }
+        }
+
+        // Render steps
+        function renderSteps() {
+            stepsContainer.innerHTML = '';
+
+            steps.forEach((step, idx) => {
+                const isActive = step.status === 'active';
+                const isCompleted = step.status === 'completed';
+                const isDiagnosis = step.is_diagnosis;
+
+                const stepEl = document.createElement('div');
+                stepEl.className = 'step-item ' + (isActive ? 'active' : isCompleted ? 'completed' : 'pending') + ' fade-in';
+
+                let html = '';
+
+                // Marker
+                if (isCompleted && !isDiagnosis) {
+                    html += '<div class="step-marker">\u2713</div>';
+                } else if (isDiagnosis) {
+                    html += '<div class="step-marker" style="background: var(--green); color: var(--bg-dark);">\u2713</div>';
+                } else {
+                    html += '<div class="step-marker">' + step.step_number + '</div>';
+                }
+
+                html += '<div class="step-card">';
+
+                // Meta
+                html += '<div class="step-meta">';
+                html += '<span class="step-label">Step ' + step.step_number + '</span>';
+                if (step.tool_needed && step.tool_needed !== 'none') {
+                    html += '<span class="tool-badge ' + step.tool_needed + '">' + formatTool(step.tool_needed) + '</span>';
+                }
+                html += '</div>';
+
+                if (isDiagnosis && step.diagnosis) {
+                    // Render diagnosis
+                    html += '</div>'; // close step-card
+                    html += renderDiagnosis(step);
+                } else {
+                    // Instruction
+                    html += '<div class="step-instruction">' + escapeHtml(step.instruction) + '</div>';
+
+                    if (step.detail && !step.instruction.includes(step.detail)) {
+                        html += '<div style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 12px;">' + escapeHtml(step.detail) + '</div>';
+                    }
+
+                    // Jargon term glossary (if AI provided any)
+                    if (step.jargon_terms && step.jargon_terms.length > 0) {
+                        html += renderJargonSection(step.jargon_terms);
+                    }
+
+                    // Wiring diagram (if present)
+                    if (step.diagram_url) {
+                        html += renderDiagramEmbed(step.diagram_url, step.diagram_confidence, step.diagram_label);
+                    }
+
+                    // Part location panel — show if instruction mentions a known part
+                    const detectedPart = detectPartInInstruction(step.instruction || '');
+                    if (detectedPart) {
+                        html += renderPartLocationPanel(detectedPart);
+                    }
+
+                    // System reference panel — show if instruction narrows to a known system
+                    const detectedSystem = detectSystemInInstruction(step.instruction || '');
+                    if (detectedSystem) {
+                        html += renderSystemRefPanel(detectedSystem);
+                    }
+
+                    // Expected values
+                    if (step.expected_values) {
+                        html += '<div class="expected-values">Normal: ' + escapeHtml(step.expected_values) + '</div>';
+                    }
+
+                    // Safety warning
+                    if (step.safety_warning) {
+                        html += '<div class="safety-warning">' + escapeHtml(step.safety_warning) + '</div>';
+                    }
+
+                    // User response (completed)
+                    if (isCompleted && step.user_response) {
+                        html += '<div class="user-response"><span class="label">Your reading:</span> <span class="value">' + escapeHtml(step.user_response) + '</span></div>';
+                    }
+
+                    // Input area (active only)
+                    if (isActive) {
+                        html += renderInputArea(step);
+                    }
+
+                    html += '</div>'; // close step-card
+                }
+
+                stepEl.innerHTML = html;
+                stepsContainer.appendChild(stepEl);
+
+                // Bind input events for active step
+                if (isActive && !isDiagnosis) {
+                    bindInputEvents(stepEl, step);
+                }
+            });
+
+            // Loading indicator
+            if (isLoading) {
+                const loadEl = document.createElement('div');
+                loadEl.className = 'step-item pending fade-in';
+                loadEl.style.paddingLeft = '48px';
+                loadEl.innerHTML = '<div class="step-marker" style="background: var(--bg-card); border: 2px solid var(--accent);">' +
+                    '<div class="spinner" style="width:14px;height:14px;border-width:2px;border-color:var(--accent-dim);border-top-color:var(--accent);"></div></div>' +
+                    '<div class="step-loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>DiagPilot is analyzing your results...</div>';
+                stepsContainer.appendChild(loadEl);
+            }
+
+            // Wire up diagram zoom handlers
+            initDiagramZoom();
+
+            // Scroll to active step
+            const activeStep = stepsContainer.querySelector('.step-item.active');
+            if (activeStep) {
+                setTimeout(() => activeStep.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+            }
+        }
+
+        // Render inline jargon term glossary below a step
+        function renderJargonSection(jargonTerms) {
+            if (!jargonTerms || jargonTerms.length === 0) return '';
+            let html = '<div class="jargon-section">';
+            html += '<div class="jargon-section-label">📖 Tap a term to learn what it means</div>';
+            html += '<div class="jargon-pills">';
+            jargonTerms.forEach((item, idx) => {
+                const safeId = 'jargon-' + Date.now() + '-' + idx;
+                html += '<button class="jargon-pill" onclick="toggleJargon(\'' + safeId + '\')">';
+                html += '<span class="pill-icon">?</span>';
+                html += escapeHtml(item.term);
+                html += '</button>';
+                html += '<div class="jargon-expand" id="' + safeId + '">';
+                html += '<strong>' + escapeHtml(item.term) + ':</strong> ' + escapeHtml(item.explanation);
+                html += '</div>';
+            });
+            html += '</div></div>';
+            return html;
+        }
+
+        function renderInputArea(step) {
+            let html = '<div class="step-input-area">';
+
+            if (step.input_label) {
+                html += '<div class="step-input-label">' + escapeHtml(step.input_label) + '</div>';
+            }
+
+            const inputType = step.input_type || 'text';
+
+            if (inputType === 'yes_no') {
+                html += '<div class="yes-no-buttons">';
+                html += '<button class="btn-yes" data-response="Yes">Yes</button>';
+                html += '<button class="btn-no" data-response="No">No</button>';
+                html += '</div>';
+            } else if (inputType === 'select' && step.input_options && step.input_options.length > 0) {
+                html += '<div class="select-options">';
+                step.input_options.forEach(opt => {
+                    html += '<button class="select-option" data-response="' + escapeAttr(opt) + '">' + escapeHtml(opt) + '</button>';
+                });
+                html += '</div>';
+            } else if (inputType === 'voltage' || inputType === 'continuity') {
+                html += '<div class="input-row">';
+                html += '<input type="text" id="step-input" placeholder="e.g. 12.6V" autocomplete="off" />';
+                html += '<button class="btn-submit" id="btn-step-submit">Submit Reading</button>';
+                html += '</div>';
+            } else {
+                html += '<div class="input-row">';
+                html += '<input type="text" id="step-input" placeholder="Type your response..." autocomplete="off" />';
+                html += '<button class="btn-submit" id="btn-step-submit">Submit</button>';
+                html += '</div>';
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function renderDiagramEmbed(diagramUrl, confidence, diagramLabel) {
+            const safeUrl = escapeAttr(diagramUrl);
+            // Diagrams at 95%+ confidence get the full "Wiring Diagram" label (vehicle-specific).
+            // Below 95%, show label as-is but add the generic note beneath the header.
+            const isHighConfidence = !confidence || confidence >= 0.95;
+            const headerLabel = isHighConfidence ? 'Wiring Diagram' : 'Wiring Diagram — Closest Match';
+            const genericNote = (!isHighConfidence && diagramLabel)
+                ? '<div class="step-diagram-generic-note">' + escapeHtml(diagramLabel) + '</div>'
+                : '';
+            return (
+                '<div class="step-diagram">' +
+                    '<div class="step-diagram-label">' + headerLabel + '</div>' +
+                    genericNote +
+                    '<div class="diagram-img-container" data-diagram-url="' + safeUrl + '">' +
+                        '<img class="step-diagram-img" src="' + safeUrl + '" alt="Wiring diagram" loading="lazy" />' +
+                        '<div class="diagram-zoom-hint">Tap to zoom</div>' +
+                    '</div>' +
+                '</div>'
+            );
+        }
+
+        // After renderSteps appends to DOM, wire up zoom handlers
+        function initDiagramZoom() {
+            document.querySelectorAll('.diagram-img-container').forEach(container => {
+                if (container._zoomInit) return;
+                container._zoomInit = true;
+
+                // Click/tap to toggle zoom
+                container.addEventListener('click', function() {
+                    this.classList.toggle('zoomed');
+                    const img = this.querySelector('.step-diagram-img');
+                    if (this.classList.contains('zoomed')) {
+                        img.style.maxHeight = 'none';
+                    } else {
+                        img.style.maxHeight = '320px';
+                    }
+                });
+
+                // Pinch-to-zoom (touch devices)
+                let lastDist = 0;
+                let currentScale = 1;
+                const img = container.querySelector('.step-diagram-img');
+
+                container.addEventListener('touchstart', function(e) {
+                    if (e.touches.length === 2) {
+                        lastDist = Math.hypot(
+                            e.touches[0].clientX - e.touches[1].clientX,
+                            e.touches[0].clientY - e.touches[1].clientY
+                        );
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+
+                container.addEventListener('touchmove', function(e) {
+                    if (e.touches.length === 2) {
+                        const dist = Math.hypot(
+                            e.touches[0].clientX - e.touches[1].clientX,
+                            e.touches[0].clientY - e.touches[1].clientY
+                        );
+                        const delta = dist / lastDist;
+                        currentScale = Math.min(Math.max(currentScale * delta, 0.5), 4);
+                        img.style.transform = 'scale(' + currentScale + ')';
+                        img.style.transformOrigin = 'center center';
+                        lastDist = dist;
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+
+                container.addEventListener('touchend', function(e) {
+                    if (e.touches.length < 2) {
+                        // Snap back if close to 1
+                        if (currentScale < 1.1) {
+                            currentScale = 1;
+                            img.style.transform = '';
+                        }
+                    }
+                });
+            });
+        }
+
+        function bindInputEvents(stepEl, step) {
+            // Yes/No buttons
+            const yesNoButtons = stepEl.querySelectorAll('.btn-yes, .btn-no');
+            yesNoButtons.forEach(btn => {
+                btn.addEventListener('click', () => submitResponse(step.step_number, btn.dataset.response));
+            });
+
+            // Select options
+            const selectOptions = stepEl.querySelectorAll('.select-option');
+            selectOptions.forEach(btn => {
+                btn.addEventListener('click', () => submitResponse(step.step_number, btn.dataset.response));
+            });
+
+            // Text/voltage input
+            const submitBtn = stepEl.querySelector('#btn-step-submit');
+            const inputField = stepEl.querySelector('#step-input');
+
+            if (submitBtn && inputField) {
+                submitBtn.addEventListener('click', () => {
+                    if (inputField.value.trim()) {
+                        submitResponse(step.step_number, inputField.value.trim());
+                    }
+                });
+
+                inputField.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && inputField.value.trim()) {
+                        submitResponse(step.step_number, inputField.value.trim());
+                    }
+                });
+
+                // Focus the input
+                setTimeout(() => inputField.focus(), 300);
+            }
+        }
+
+        async function submitResponse(stepNumber, response) {
+            if (isLoading) return;
+            isLoading = true;
+
+            // Mark current step as completed with response
+            const currentStep = steps.find(s => s.step_number === stepNumber);
+            if (currentStep) {
+                currentStep.status = 'completed';
+                currentStep.user_response = response;
+            }
+
+            renderSteps();
+
+            try {
+                const res = await fetch('/api/diagnose/next', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        step_number: stepNumber,
+                        response: response
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                const newStep = { ...data.step, status: data.step.is_diagnosis ? 'completed' : 'active' };
+                steps.push(newStep);
+                currentStepNumber = newStep.step_number;
+
+                if (newStep.is_diagnosis) {
+                    flowStatus.textContent = 'Diagnosed';
+                    flowStatus.className = 'flow-status complete';
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+                // Revert step to active
+                if (currentStep) {
+                    currentStep.status = 'active';
+                    currentStep.user_response = null;
+                }
+            } finally {
+                isLoading = false;
+                renderSteps();
+            }
+        }
+
+        function renderDiagnosis(step) {
+            const d = step.diagnosis;
+            let html = '<div class="diagnosis-card fade-in">';
+            html += '<h3>' + escapeHtml(d.problem || 'Diagnosis Complete') + '</h3>';
+            html += '<div class="diagnosis-explanation">' + escapeHtml(d.explanation || step.instruction) + '</div>';
+
+            html += '<div class="diagnosis-stats">';
+            html += '<div class="diagnosis-stat"><div class="stat-value">' + escapeHtml(d.parts_cost || 'N/A') + '</div><div class="stat-label">Est. Parts</div></div>';
+            html += '<div class="diagnosis-stat"><div class="stat-value">' + escapeHtml(d.difficulty || 'N/A') + '</div><div class="stat-label">Difficulty</div></div>';
+            html += '<div class="diagnosis-stat"><div class="stat-value">' + escapeHtml(d.labor_estimate || 'N/A') + '</div><div class="stat-label">Est. Labor</div></div>';
+            html += '</div>';
+
+            if (d.professional_recommended) {
+                html += '<div class="safety-warning">Professional mechanic recommended for this repair</div>';
+            }
+
+            if (d.next_steps && d.next_steps.length > 0) {
+                html += '<div class="diagnosis-next-steps"><h4>Next Steps</h4><ol>';
+                d.next_steps.forEach(ns => {
+                    html += '<li>' + escapeHtml(ns) + '</li>';
+                });
+                html += '</ol></div>';
+            }
+
+            html += '<button class="btn-new-diagnostic" onclick="location.href=\'/app.html\'">Start New Diagnostic</button>';
+            html += '</div>';
+            return html;
+        }
+
+        function formatTool(tool) {
+            const map = {
+                'multimeter': 'Multimeter',
+                'scan_tool': 'Scan Tool',
+                'visual': 'Visual Check',
+                'test_light': 'Test Light',
+            };
+            return map[tool] || tool;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function escapeAttr(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+    })();
+    </script>
+
+    <!-- Polsia Analytics -->
+    <script>
+    (function() {
+        var slug = 'diagpilot';
+        if (!slug) return;
+        var vid = localStorage.getItem('polsia_vid');
+        if (!vid) {
+            vid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0;
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+            localStorage.setItem('polsia_vid', vid);
+        }
+        new Image().src = 'https://polsia.com/api/beacon/pixel?s=' + encodeURIComponent(slug) + '&v=' + encodeURIComponent(vid);
+    })();
+    </script>
+</body>
+</html>

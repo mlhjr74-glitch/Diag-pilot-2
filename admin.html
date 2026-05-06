@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiagPilot Admin — Wiring Diagrams</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0a0e17;
+            --card: #111827;
+            --card2: #1a2234;
+            --accent: #22d3ee;
+            --accent-dim: rgba(34,211,238,0.12);
+            --green: #22c55e;
+            --green-dim: rgba(34,197,94,0.12);
+            --red: #ef4444;
+            --red-dim: rgba(239,68,68,0.12);
+            --orange: #f97316;
+            --orange-dim: rgba(249,115,22,0.12);
+            --txt: #f1f5f9;
+            --txt2: #94a3b8;
+            --txt3: #64748b;
+            --border: rgba(148,163,184,0.1);
+            --border-acc: rgba(34,211,238,0.2);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--txt);
+            min-height: 100vh;
+        }
+
+        h1,h2,h3 { font-family: 'Space Grotesk', sans-serif; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+        nav {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 28px;
+            width: auto;
+            display: block;
+        }
+        .admin-badge {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            background: var(--orange-dim);
+            color: var(--orange);
+            border: 1px solid rgba(249,115,22,0.2);
+            border-radius: 100px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Login gate */
+        #login-screen {
+            max-width: 420px;
+            margin: 100px auto;
+            text-align: center;
+        }
+        #login-screen h2 { font-size: 1.5rem; margin-bottom: 8px; }
+        #login-screen p { color: var(--txt2); font-size: 0.9rem; margin-bottom: 32px; }
+        .login-form { display: flex; flex-direction: column; gap: 12px; }
+        .login-form input {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: var(--txt);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .login-form input:focus { border-color: var(--accent); }
+        #login-error { color: var(--red); font-size: 0.85rem; display: none; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 28px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0;
+        }
+        .tab {
+            padding: 10px 20px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--txt3);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab:hover:not(.active) { color: var(--txt2); }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Upload form */
+        .upload-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+        .upload-card h3 { font-size: 1rem; margin-bottom: 20px; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--txt2);
+            font-weight: 600;
+        }
+        .form-group input, .form-group textarea {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: var(--txt);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+
+        .file-drop {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .file-drop:hover, .file-drop.dragover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .file-drop input[type="file"] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+        }
+        .file-drop-icon { font-size: 2rem; margin-bottom: 8px; }
+        .file-drop-text { color: var(--txt2); font-size: 0.9rem; }
+        .file-drop-text span { color: var(--accent); font-weight: 600; }
+        .file-selected { color: var(--green); font-size: 0.85rem; margin-top: 8px; font-weight: 500; }
+
+        .keywords-hint {
+            font-size: 0.78rem;
+            color: var(--txt3);
+            margin-top: 4px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            color: var(--bg);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary:hover:not(:disabled) { box-shadow: 0 4px 20px rgba(34,211,238,0.3); transform: translateY(-1px); }
+        .spinner {
+            width: 16px; height: 16px;
+            border: 2px solid rgba(10,14,23,0.3);
+            border-top-color: var(--bg);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Diagrams grid */
+        .diagrams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .diagram-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .diagram-card:hover { border-color: var(--border-acc); }
+
+        .diagram-img {
+            width: 100%;
+            height: 180px;
+            object-fit: contain;
+            background: #070b12;
+            display: block;
+        }
+
+        .diagram-body { padding: 16px; }
+        .diagram-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 6px; }
+        .diagram-desc { font-size: 0.82rem; color: var(--txt2); margin-bottom: 10px; line-height: 1.5; }
+        .diagram-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .kw-tag {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            background: var(--accent-dim);
+            color: var(--accent);
+            border-radius: 100px;
+            font-weight: 500;
+        }
+        .diagram-actions { display: flex; gap: 8px; }
+        .btn-sm {
+            padding: 7px 14px;
+            font-size: 0.78rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--txt2);
+            transition: all 0.2s;
+        }
+        .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-sm.danger:hover { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+        .btn-sm.copy:hover { border-color: var(--green); color: var(--green); }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 0;
+            color: var(--txt3);
+        }
+        .empty-state p { margin-top: 8px; font-size: 0.9rem; }
+
+        /* Sessions panel */
+        .sessions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .sessions-table th {
+            text-align: left;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--txt3);
+            padding: 0 16px 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+        }
+        .sessions-table td {
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            vertical-align: top;
+        }
+        .sessions-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .session-vehicle { font-weight: 600; }
+        .session-symptom { color: var(--txt2); font-size: 0.8rem; max-width: 200px; }
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 100px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-badge.active { background: var(--accent-dim); color: var(--accent); }
+        .status-badge.completed { background: var(--green-dim); color: var(--green); }
+
+        /* Steps panel */
+        .steps-list { display: flex; flex-direction: column; gap: 12px; }
+        .step-row {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+        .step-num {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: var(--card2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            color: var(--accent);
+        }
+        .step-content { flex: 1; min-width: 0; }
+        .step-instr { font-size: 0.88rem; line-height: 1.5; margin-bottom: 8px; white-space: pre-wrap; }
+        .step-diagram-url { font-size: 0.75rem; color: var(--green); margin-bottom: 8px; word-break: break-all; }
+        .step-attach { display: flex; gap: 8px; align-items: center; }
+        .step-attach select {
+            flex: 1;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--txt);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            outline: none;
+        }
+        .step-attach select:focus { border-color: var(--accent); }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--txt2);
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+        }
+        .back-btn:hover { color: var(--accent); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.25s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: var(--green); color: #052e16; }
+        .toast.error { background: var(--red); color: #fff; }
+
+        /* Review queue */
+        .review-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .review-card.pending { border-left: 3px solid var(--orange); }
+        .review-card.approved { border-left: 3px solid var(--green); }
+        .review-card.rejected { border-left: 3px solid var(--red); }
+        .review-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        .review-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 600; }
+        .review-meta { font-size: 0.78rem; color: var(--txt3); margin-top: 3px; }
+        .review-content {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            color: var(--txt2);
+            font-family: 'DM Mono', 'Courier New', monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 14px;
+        }
+        .review-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn-approve {
+            padding: 8px 16px;
+            background: var(--green-dim);
+            color: var(--green);
+            border: 1px solid rgba(34,197,94,0.3);
+            border-radius: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-approve:hover { background: var(--green); color: #052e16; }
+        .btn-reject {
+            padding: 8px 16px;
+            background: var(--red-dim);
+            color: var(--red);
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-reject:hover { background: var(--red); color: #fff; }
+        .reject-notes {
+            flex: 1;
+            min-width: 160px;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--txt);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            outline: none;
+        }
+        .reject-notes:focus { border-color: var(--red); }
+        .review-status-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .filter-btn {
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.78rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--txt3);
+            transition: all 0.2s;
+        }
+        .filter-btn.active-filter { background: var(--accent-dim); color: var(--accent); border-color: var(--border-acc); }
+
+        /* Generate form */
+        /* Users section */
+        .users-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .users-header h2 { font-size: 1.2rem; }
+        .users-stats {
+            display: flex;
+            gap: 16px;
+        }
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 18px;
+            text-align: center;
+        }
+        .stat-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--txt3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .users-table th {
+            text-align: left;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--txt3);
+            padding: 12px 16px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            background: var(--card2);
+            border-bottom: 1px solid var(--border);
+        }
+        .users-table td {
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        .users-table tr:last-child td { border-bottom: none; }
+        .users-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .subscriber-badge {
+            font-size: 0.68rem;
+            padding: 3px 8px;
+            border-radius: 100px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .subscriber-badge.active { background: var(--accent-dim); color: var(--accent); }
+        .subscriber-badge.trial { background: var(--orange-dim); color: var(--orange); }
+        .subscriber-badge.null { background: var(--red-dim); color: var(--red); }
+        .subscriber-badge.founder_comp { background: var(--green-dim); color: var(--green); }
+
+        .generate-result {
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .diagrams-grid { grid-template-columns: 1fr; }
+            .sessions-table th:nth-child(3),
+            .sessions-table td:nth-child(3) { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav>
+        <a href="/" class="logo"><img src="/diagpilot-logo.svg" alt="DiagPilot"></a>
+        <span class="admin-badge">Admin</span>
+    </nav>
+
+    <!-- Login gate -->
+    <div id="login-screen">
+        <h2>Admin Access</h2>
+        <p>Enter your admin key to manage wiring diagrams.</p>
+        <div class="login-form">
+            <input type="password" id="admin-key-input" placeholder="Admin Key" autocomplete="current-password" />
+            <span id="login-error">Invalid admin key. Try again.</span>
+            <button class="btn-primary" id="btn-login">
+                <span id="btn-login-text">Sign In</span>
+                <span class="spinner" id="login-spinner"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main admin UI (hidden until logged in) -->
+    <div id="admin-ui" style="display:none;">
+        <div class="tabs">
+            <div class="tab active" data-tab="diagrams">Wiring Diagrams</div>
+            <div class="tab" data-tab="generate">⚡ AI Generate</div>
+            <div class="tab" data-tab="review">Review Queue</div>
+            <div class="tab" data-tab="sessions">Diagnostic Sessions</div>
+            <div class="tab" data-tab="users">Users</div>
+        </div>
+
+        <!-- ===== DIAGRAMS TAB ===== -->
+        <div id="tab-diagrams" class="tab-panel active">
+            <div class="upload-card">
+                <h3>Upload New Diagram</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Title *</label>
+                        <input type="text" id="diag-title" placeholder="e.g. Crankshaft Position Sensor Connector" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Make *</label>
+                        <select id="diag-make">
+                            <option value="">Select make...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Model *</label>
+                        <select id="diag-model">
+                            <option value="">Select model...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year Start *</label>
+                        <select id="diag-year-start">
+                            <option value="">1990</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year End *</label>
+                        <select id="diag-year-end">
+                            <option value="">2027</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Keywords (comma-separated)</label>
+                        <input type="text" id="diag-keywords" placeholder="e.g. crankshaft, sensor, connector, ckp" />
+                        <span class="keywords-hint">Steps matching these keywords will auto-display this diagram.</span>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Description (optional)</label>
+                        <textarea id="diag-description" placeholder="Brief description of what this diagram shows..."></textarea>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Diagram File (PNG, JPG, SVG, WebP)</label>
+                        <div class="file-drop" id="file-drop">
+                            <input type="file" id="diag-file" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml" />
+                            <div class="file-drop-icon">📁</div>
+                            <div class="file-drop-text">Drop image here or <span>click to browse</span></div>
+                            <div class="file-selected" id="file-selected" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; display: flex; align-items: center; gap: 16px;">
+                    <button class="btn-primary" id="btn-upload">
+                        <span id="btn-upload-text">Upload Diagram</span>
+                        <span class="spinner" id="upload-spinner"></span>
+                    </button>
+                    <span id="upload-status" style="font-size:0.85rem; color: var(--txt2);"></span>
+                </div>
+            </div>
+
+            <div id="diagrams-container">
+                <div class="empty-state" id="diagrams-empty" style="display:none;">
+                    <div style="font-size:2.5rem;">🔌</div>
+                    <p>No diagrams yet. Upload your first wiring diagram above.</p>
+                </div>
+                <div class="diagrams-grid" id="diagrams-grid"></div>
+            </div>
+        </div>
+
+        <!-- ===== GENERATE TAB ===== -->
+        <div id="tab-generate" class="tab-panel">
+            <div class="upload-card">
+                <h3>Generate AI Wiring Info</h3>
+                <p style="color:var(--txt2);font-size:0.85rem;margin:-8px 0 20px;">AI drafts wiring details (pin count, wire colors, functions). <strong>You review and approve</strong> before anything goes live.</p>
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label class="form-label">Part / Component *</label>
+                        <input type="text" id="gen-part" placeholder="e.g. Crankshaft Position Sensor, MAF Sensor, O2 Sensor" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Make *</label>
+                        <input type="text" id="gen-make" placeholder="e.g. Toyota" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Model *</label>
+                        <input type="text" id="gen-model" placeholder="e.g. Camry" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year *</label>
+                        <input type="number" id="gen-year" placeholder="e.g. 2018" min="1990" max="2027" />
+                    </div>
+                </div>
+                <div style="margin-top: 20px; display: flex; align-items: center; gap: 16px;">
+                    <button class="btn-primary" id="btn-generate">
+                        <span id="btn-generate-text">Generate Draft</span>
+                        <span class="spinner" id="generate-spinner"></span>
+                    </button>
+                    <span id="generate-status" style="font-size:0.85rem; color: var(--txt2);"></span>
+                </div>
+                <div id="generate-result" class="generate-result"></div>
+            </div>
+        </div>
+
+        <!-- ===== REVIEW QUEUE TAB ===== -->
+        <div id="tab-review" class="tab-panel">
+            <div class="review-status-filter">
+                <button class="filter-btn active-filter" data-status="pending_review">Pending Review</button>
+                <button class="filter-btn" data-status="approved">Approved</button>
+                <button class="filter-btn" data-status="rejected">Rejected</button>
+            </div>
+            <div id="review-list"></div>
+            <div class="empty-state" id="review-empty" style="display:none;">
+                <div style="font-size:2.5rem;">✅</div>
+                <p>Nothing in this queue.</p>
+            </div>
+        </div>
+
+        <!-- ===== SESSIONS TAB ===== -->
+        <div id="tab-sessions" class="tab-panel">
+            <div id="sessions-list-view">
+                <table class="sessions-table" id="sessions-table">
+                    <thead>
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Symptom</th>
+                            <th>User</th>
+                            <th>Steps</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessions-tbody"></tbody>
+                </table>
+                <div class="empty-state" id="sessions-empty" style="display:none;">
+                    <div style="font-size:2.5rem;">📋</div>
+                    <p>No diagnostic sessions yet.</p>
+                </div>
+            </div>
+
+            <div id="session-steps-view" style="display:none;">
+                <div class="back-btn" id="btn-back-sessions">← Back to Sessions</div>
+                <div id="session-steps-header" style="margin-bottom: 20px;"></div>
+                <div class="steps-list" id="steps-list"></div>
+            </div>
+        </div>
+
+        <!-- ===== USERS TAB ===== -->
+        <div id="tab-users" class="tab-panel">
+            <div class="users-header">
+                <h2>Registered Users</h2>
+                <div class="users-stats" id="users-stats"></div>
+                <button class="btn-primary" id="btn-export-csv" style="padding:10px 20px;font-size:0.85rem;">
+                    ⬇ Download CSV
+                </button>
+            </div>
+            <div id="users-loading" style="color:var(--txt3);padding:20px 0;">Loading…</div>
+            <div id="users-empty" class="empty-state" style="display:none;">
+                <div style="font-size:2.5rem;">👥</div>
+                <p>No users registered yet.</p>
+            </div>
+            <div id="users-table-container" style="display:none;">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Name</th>
+                            <th>Subscription Status</th>
+                            <th>Plan</th>
+                            <th>Signup Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+    let adminKey = localStorage.getItem('diagpilot_admin_key') || '';
+    let diagrams = [];
+    let currentSessionId = null;
+
+    // ===== UTILS =====
+    function toast(msg, type = 'success') {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.className = 'toast ' + type + ' show';
+        setTimeout(() => { el.classList.remove('show'); }, 3000);
+    }
+
+    function apiHeaders(extra) {
+        return Object.assign({ 'X-Admin-Key': adminKey, 'Content-Type': 'application/json' }, extra || {});
+    }
+
+    // ===== LOGIN =====
+    async function tryLogin(key) {
+        const btn = document.getElementById('btn-login');
+        const spinner = document.getElementById('login-spinner');
+        const text = document.getElementById('btn-login-text');
+        const err = document.getElementById('login-error');
+
+        btn.disabled = true;
+        spinner.style.display = 'inline-block';
+        text.textContent = 'Verifying...';
+        err.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/admin/verify', {
+                headers: { 'X-Admin-Key': key, 'Content-Type': 'application/json' }
+            });
+
+            if (res.ok) {
+                adminKey = key;
+                localStorage.setItem('diagpilot_admin_key', key);
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-ui').style.display = 'block';
+                loadDiagrams();
+                loadSessions();
+            } else {
+                err.style.display = 'block';
+                localStorage.removeItem('diagpilot_admin_key');
+            }
+        } catch (e) {
+            err.textContent = 'Connection error. Try again.';
+            err.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            spinner.style.display = 'none';
+            text.textContent = 'Sign In';
+        }
+    }
+
+    // Auto-login if key in storage
+    if (adminKey) {
+        tryLogin(adminKey);
+    }
+
+    document.getElementById('btn-login').addEventListener('click', () => {
+        const key = document.getElementById('admin-key-input').value.trim();
+        if (key) tryLogin(key);
+    });
+    document.getElementById('admin-key-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('btn-login').click();
+    });
+
+    // ===== TABS =====
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+        });
+    });
+
+    // ===== FILE DROP =====
+    const fileDrop = document.getElementById('file-drop');
+    const fileInput = document.getElementById('diag-file');
+    const fileSelected = document.getElementById('file-selected');
+
+    fileDrop.addEventListener('dragover', e => { e.preventDefault(); fileDrop.classList.add('dragover'); });
+    fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
+    fileDrop.addEventListener('drop', e => {
+        e.preventDefault();
+        fileDrop.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            showSelectedFile(e.dataTransfer.files[0]);
+        }
+    });
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) showSelectedFile(fileInput.files[0]);
+    });
+
+    function showSelectedFile(file) {
+        fileSelected.textContent = '✓ ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+        fileSelected.style.display = 'block';
+        document.querySelector('.file-drop-text').style.display = 'none';
+        document.querySelector('.file-drop-icon').style.display = 'none';
+    }
+
+    // ===== POPULATE VEHICLE DROPDOWNS =====
+    async function populateVehicleDropdowns() {
+        try {
+            // Load makes
+            const makesRes = await fetch('/api/vehicles/makes');
+            const makesData = await makesRes.json();
+            const makeSelect = document.getElementById('diag-make');
+            makesData.makes.forEach(make => {
+                const opt = document.createElement('option');
+                opt.value = make;
+                opt.textContent = make;
+                makeSelect.appendChild(opt);
+            });
+
+            // Load years
+            const yearsRes = await fetch('/api/vehicles/years');
+            const yearsData = await yearsRes.json();
+            const yearStartSelect = document.getElementById('diag-year-start');
+            const yearEndSelect = document.getElementById('diag-year-end');
+            yearsData.years.forEach(year => {
+                const opt1 = document.createElement('option');
+                opt1.value = year;
+                opt1.textContent = year;
+                yearStartSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = year;
+                opt2.textContent = year;
+                yearEndSelect.appendChild(opt2);
+            });
+            // Default year end to current year
+            yearEndSelect.value = yearsData.years[0];
+
+            // Handle make change to load models
+            makeSelect.addEventListener('change', async () => {
+                const make = makeSelect.value;
+                const modelSelect = document.getElementById('diag-model');
+                modelSelect.innerHTML = '<option value="">Select model...</option>';
+                if (!make) return;
+
+                try {
+                    const modelsRes = await fetch('/api/vehicles/models?make=' + encodeURIComponent(make));
+                    const modelsData = await modelsRes.json();
+                    modelsData.models.forEach(model => {
+                        const opt = document.createElement('option');
+                        opt.value = model;
+                        opt.textContent = model;
+                        modelSelect.appendChild(opt);
+                    });
+                } catch (err) {
+                    console.error('Failed to load models:', err);
+                }
+            });
+        } catch (err) {
+            console.error('Failed to load vehicle data:', err);
+        }
+    }
+
+    // ===== UPLOAD DIAGRAM =====
+    document.getElementById('btn-upload').addEventListener('click', async () => {
+        const title = document.getElementById('diag-title').value.trim();
+        const make = document.getElementById('diag-make').value.trim();
+        const model = document.getElementById('diag-model').value.trim();
+        const yearStart = document.getElementById('diag-year-start').value;
+        const yearEnd = document.getElementById('diag-year-end').value;
+        const keywords = document.getElementById('diag-keywords').value.trim();
+        const description = document.getElementById('diag-description').value.trim();
+        const file = fileInput.files[0];
+
+        if (!title) { toast('Title is required.', 'error'); return; }
+        if (!make) { toast('Make is required.', 'error'); return; }
+        if (!model) { toast('Model is required.', 'error'); return; }
+        if (!yearStart) { toast('Year start is required.', 'error'); return; }
+        if (!yearEnd) { toast('Year end is required.', 'error'); return; }
+        if (!file) { toast('Please select a diagram file.', 'error'); return; }
+
+        const btn = document.getElementById('btn-upload');
+        const spinner = document.getElementById('upload-spinner');
+        const text = document.getElementById('btn-upload-text');
+        const status = document.getElementById('upload-status');
+
+        btn.disabled = true;
+        spinner.style.display = 'inline-block';
+        text.textContent = 'Uploading...';
+        status.textContent = '';
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('title', title);
+            formData.append('make', make);
+            formData.append('model', model);
+            formData.append('year_start', yearStart);
+            formData.append('year_end', yearEnd);
+            formData.append('description', description);
+            formData.append('keywords', keywords);
+
+            const res = await fetch('/api/admin/diagrams', {
+                method: 'POST',
+                headers: { 'X-Admin-Key': adminKey },
+                body: formData
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+            toast('Diagram uploaded successfully!');
+            // Reset form
+            document.getElementById('diag-title').value = '';
+            document.getElementById('diag-make').value = '';
+            document.getElementById('diag-model').value = '';
+            document.getElementById('diag-year-start').value = '';
+            document.getElementById('diag-year-end').value = '';
+            document.getElementById('diag-keywords').value = '';
+            document.getElementById('diag-description').value = '';
+            fileInput.value = '';
+            fileSelected.style.display = 'none';
+            document.querySelector('.file-drop-text').style.display = '';
+            document.querySelector('.file-drop-icon').style.display = '';
+
+            loadDiagrams();
+        } catch (err) {
+            toast(err.message || 'Upload failed.', 'error');
+        } finally {
+            btn.disabled = false;
+            spinner.style.display = 'none';
+            text.textContent = 'Upload Diagram';
+        }
+    });
+
+    // Initialize vehicle dropdowns on page load
+    populateVehicleDropdowns();
+
+    // ===== LOAD DIAGRAMS =====
+    async function loadDiagrams() {
+        try {
+            const res = await fetch('/api/admin/diagrams', { headers: apiHeaders() });
+            const data = await res.json();
+            if (!res.ok) return;
+            diagrams = data.diagrams || [];
+            renderDiagrams();
+        } catch (e) { /* non-fatal */ }
+    }
+
+    function renderDiagrams() {
+        const grid = document.getElementById('diagrams-grid');
+        const empty = document.getElementById('diagrams-empty');
+        grid.innerHTML = '';
+
+        if (diagrams.length === 0) {
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        diagrams.forEach(d => {
+            const card = document.createElement('div');
+            card.className = 'diagram-card';
+            const kws = (d.keywords || []).map(k => `<span class="kw-tag">${esc(k)}</span>`).join('');
+            const vehicleInfo = d.make && d.model
+                ? `<div class="diagram-vehicle">${esc(d.make)} ${esc(d.model)} (${d.year_start || '?'}-${d.year_end || '?'})</div>`
+                : '';
+            card.innerHTML = `
+                <img class="diagram-img" src="${esc(d.diagram_url)}" alt="${esc(d.title)}" loading="lazy" />
+                <div class="diagram-body">
+                    <div class="diagram-title">${esc(d.title)}</div>
+                    ${vehicleInfo}
+                    ${d.description ? `<div class="diagram-desc">${esc(d.description)}</div>` : ''}
+                    ${kws ? `<div class="diagram-keywords">${kws}</div>` : '<div style="margin-bottom:10px;"></div>'}
+                    <div class="diagram-actions">
+                        <button class="btn-sm copy" data-url="${esc(d.diagram_url)}">Copy URL</button>
+                        <button class="btn-sm danger" data-id="${d.id}">Delete</button>
+                    </div>
+                </div>
+            `;
+            card.querySelector('.copy').addEventListener('click', (e) => {
+                navigator.clipboard.writeText(e.target.dataset.url).then(() => toast('URL copied!'));
+            });
+            card.querySelector('.danger').addEventListener('click', async (e) => {
+                if (!confirm('Delete this diagram?')) return;
+                await fetch('/api/admin/diagrams/' + e.target.dataset.id, {
+                    method: 'DELETE',
+                    headers: apiHeaders()
+                });
+                toast('Diagram deleted.');
+                loadDiagrams();
+            });
+            grid.appendChild(card);
+        });
+    }
+
+    // ===== SESSIONS =====
+    async function loadSessions() {
+        try {
+            const res = await fetch('/api/admin/sessions', { headers: apiHeaders() });
+            const data = await res.json();
+            if (!res.ok) return;
+            renderSessions(data.sessions || []);
+        } catch (e) { /* non-fatal */ }
+    }
+
+    function renderSessions(sessions) {
+        const tbody = document.getElementById('sessions-tbody');
+        const empty = document.getElementById('sessions-empty');
+        tbody.innerHTML = '';
+
+        if (sessions.length === 0) {
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        sessions.forEach(s => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><div class="session-vehicle">${esc(s.vehicle_year + ' ' + s.vehicle_make + ' ' + s.vehicle_model)}</div></td>
+                <td><div class="session-symptom">${esc(s.symptom)}</div></td>
+                <td style="color:var(--txt2); font-size:0.8rem;">${esc(s.user_email || '—')}</td>
+                <td style="color:var(--txt2);">${s.step_count}</td>
+                <td><span class="status-badge ${s.status}">${esc(s.status)}</span></td>
+                <td><button class="btn-sm" data-sid="${s.id}">Attach Diagrams</button></td>
+            `;
+            tr.querySelector('.btn-sm').addEventListener('click', () => loadSessionSteps(s.id, s));
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function loadSessionSteps(sessionId, session) {
+        currentSessionId = sessionId;
+        try {
+            const res = await fetch('/api/admin/sessions/' + sessionId + '/steps', { headers: apiHeaders() });
+            const data = await res.json();
+            if (!res.ok) return;
+            renderSessionSteps(data.steps || [], session);
+        } catch (e) { /* non-fatal */ }
+    }
+
+    function renderSessionSteps(steps, session) {
+        document.getElementById('sessions-list-view').style.display = 'none';
+        document.getElementById('session-steps-view').style.display = 'block';
+
+        const header = document.getElementById('session-steps-header');
+        header.innerHTML = `<h3 style="font-size:1.1rem;">${esc(session.vehicle_year + ' ' + session.vehicle_make + ' ' + session.vehicle_model)}</h3><p style="color:var(--txt2);font-size:0.85rem;margin-top:4px;">${esc(session.symptom)}</p>`;
+
+        const list = document.getElementById('steps-list');
+        list.innerHTML = '';
+
+        if (steps.length === 0) {
+            list.innerHTML = '<div class="empty-state"><p>No steps in this session.</p></div>';
+            return;
+        }
+
+        steps.forEach(step => {
+            const row = document.createElement('div');
+            row.className = 'step-row';
+
+            const diagramOptions = diagrams.map(d =>
+                `<option value="${esc(d.diagram_url)}" ${step.diagram_url === d.diagram_url ? 'selected' : ''}>${esc(d.title)}</option>`
+            ).join('');
+
+            row.innerHTML = `
+                <div class="step-num">${step.step_number}</div>
+                <div class="step-content">
+                    <div class="step-instr">${esc(step.instruction)}</div>
+                    ${step.diagram_url ? `<div class="step-diagram-url">📎 ${esc(step.diagram_url)}</div>` : ''}
+                    <div class="step-attach">
+                        <select data-step-id="${step.id}">
+                            <option value="">— No diagram —</option>
+                            ${diagramOptions}
+                        </select>
+                        <button class="btn-sm" data-step-id="${step.id}">Save</button>
+                    </div>
+                </div>
+            `;
+
+            row.querySelector('.btn-sm').addEventListener('click', async (e) => {
+                const stepId = e.target.dataset.stepId;
+                const sel = row.querySelector('select[data-step-id="' + stepId + '"]');
+                const url = sel.value;
+
+                const res = await fetch('/api/admin/steps/' + stepId + '/diagram', {
+                    method: 'POST',
+                    headers: apiHeaders(),
+                    body: JSON.stringify({ diagram_url: url || null })
+                });
+
+                if (res.ok) {
+                    toast('Diagram attached!');
+                    // Update display
+                    const urlDisplay = row.querySelector('.step-diagram-url');
+                    if (url) {
+                        if (urlDisplay) {
+                            urlDisplay.textContent = '📎 ' + url;
+                        } else {
+                            const instrEl = row.querySelector('.step-instr');
+                            const newEl = document.createElement('div');
+                            newEl.className = 'step-diagram-url';
+                            newEl.textContent = '📎 ' + url;
+                            instrEl.after(newEl);
+                        }
+                    } else {
+                        if (urlDisplay) urlDisplay.remove();
+                    }
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    toast(data.error || 'Failed to attach.', 'error');
+                }
+            });
+
+            list.appendChild(row);
+        });
+    }
+
+    document.getElementById('btn-back-sessions').addEventListener('click', () => {
+        document.getElementById('session-steps-view').style.display = 'none';
+        document.getElementById('sessions-list-view').style.display = 'block';
+    });
+
+    // ===== AI GENERATE =====
+    document.getElementById('btn-generate').addEventListener('click', async () => {
+        const part_type = document.getElementById('gen-part').value.trim();
+        const make = document.getElementById('gen-make').value.trim();
+        const model = document.getElementById('gen-model').value.trim();
+        const year = document.getElementById('gen-year').value.trim();
+
+        if (!part_type) { toast('Part/component is required.', 'error'); return; }
+        if (!make) { toast('Make is required.', 'error'); return; }
+        if (!model) { toast('Model is required.', 'error'); return; }
+        if (!year) { toast('Year is required.', 'error'); return; }
+
+        const btn = document.getElementById('btn-generate');
+        const spinner = document.getElementById('generate-spinner');
+        const text = document.getElementById('btn-generate-text');
+        const status = document.getElementById('generate-status');
+        const resultEl = document.getElementById('generate-result');
+
+        btn.disabled = true;
+        spinner.style.display = 'inline-block';
+        text.textContent = 'Generating...';
+        status.textContent = 'Asking AI for wiring data…';
+        resultEl.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/admin/diagrams/generate', {
+                method: 'POST',
+                headers: apiHeaders(),
+                body: JSON.stringify({ part_type, make, model, year: parseInt(year) })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Generation failed');
+
+            toast('Draft created — check Review Queue!');
+            status.textContent = `Draft id=${data.diagram.id} created.`;
+            resultEl.textContent = data.diagram.description || '(no content)';
+            resultEl.style.display = 'block';
+
+            // Clear form
+            document.getElementById('gen-part').value = '';
+            document.getElementById('gen-make').value = '';
+            document.getElementById('gen-model').value = '';
+            document.getElementById('gen-year').value = '';
+        } catch (err) {
+            toast(err.message || 'Generation failed.', 'error');
+            status.textContent = '';
+        } finally {
+            btn.disabled = false;
+            spinner.style.display = 'none';
+            text.textContent = 'Generate Draft';
+        }
+    });
+
+    // ===== REVIEW QUEUE =====
+    let reviewStatus = 'pending_review';
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter'));
+            btn.classList.add('active-filter');
+            reviewStatus = btn.dataset.status;
+            loadReviewQueue();
+        });
+    });
+
+    async function loadReviewQueue() {
+        const list = document.getElementById('review-list');
+        const empty = document.getElementById('review-empty');
+        list.innerHTML = '<div style="color:var(--txt3);font-size:0.85rem;padding:20px 0;">Loading…</div>';
+        empty.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/admin/diagrams/review?status=' + reviewStatus, { headers: apiHeaders() });
+            const data = await res.json();
+            if (!res.ok) { list.innerHTML = ''; return; }
+            renderReviewQueue(data.diagrams || []);
+        } catch (e) {
+            list.innerHTML = '';
+        }
+    }
+
+    function renderReviewQueue(items) {
+        const list = document.getElementById('review-list');
+        const empty = document.getElementById('review-empty');
+        list.innerHTML = '';
+
+        if (items.length === 0) {
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        items.forEach(d => {
+            const card = document.createElement('div');
+            card.className = 'review-card ' + (d.status === 'pending_review' ? 'pending' : d.status);
+            card.dataset.id = d.id;
+
+            const ts = new Date(d.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const aiTag = d.ai_generated ? '<span style="font-size:0.7rem;padding:2px 8px;background:var(--orange-dim);color:var(--orange);border-radius:100px;font-weight:700;margin-left:8px;">AI</span>' : '';
+
+            card.innerHTML = `
+                <div class="review-header">
+                    <div>
+                        <div class="review-title">${esc(d.title)}${aiTag}</div>
+                        <div class="review-meta">${esc(d.make || '')} ${esc(d.model || '')} · ${d.year_start || '?'}–${d.year_end || '?'} · Created ${ts}</div>
+                        ${d.review_notes ? `<div style="color:var(--red);font-size:0.78rem;margin-top:4px;">📝 ${esc(d.review_notes)}</div>` : ''}
+                    </div>
+                    <span style="font-size:0.7rem;padding:3px 10px;border-radius:100px;font-weight:700;text-transform:uppercase;background:${d.status==='pending_review'?'var(--orange-dim)':d.status==='approved'?'var(--green-dim)':'var(--red-dim)'};color:${d.status==='pending_review'?'var(--orange)':d.status==='approved'?'var(--green)':'var(--red)'};">${d.status === 'pending_review' ? 'Pending' : d.status}</span>
+                </div>
+                <div class="review-content">${esc(d.description || '(no content)')}</div>
+                ${d.status === 'pending_review' ? `
+                <div class="review-actions">
+                    <button class="btn-approve" data-id="${d.id}">✓ Approve</button>
+                    <input class="reject-notes" placeholder="Rejection notes (optional)" data-id="${d.id}" />
+                    <button class="btn-reject" data-id="${d.id}">✕ Reject</button>
+                </div>` : ''}
+            `;
+
+            if (d.status === 'pending_review') {
+                card.querySelector('.btn-approve').addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    const r = await fetch(`/api/admin/diagrams/${id}/approve`, {
+                        method: 'PUT', headers: apiHeaders()
+                    });
+                    if (r.ok) { toast('Diagram approved — now live!'); loadReviewQueue(); }
+                    else { const rd = await r.json().catch(()=>({})); toast(rd.error || 'Failed.', 'error'); }
+                });
+                card.querySelector('.btn-reject').addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    const notes = card.querySelector(`.reject-notes[data-id="${id}"]`).value.trim();
+                    const r = await fetch(`/api/admin/diagrams/${id}/reject`, {
+                        method: 'PUT', headers: apiHeaders(),
+                        body: JSON.stringify({ notes })
+                    });
+                    if (r.ok) { toast('Diagram rejected.'); loadReviewQueue(); }
+                    else { const rd = await r.json().catch(()=>({})); toast(rd.error || 'Failed.', 'error'); }
+                });
+            }
+
+            list.appendChild(card);
+        });
+    }
+
+    // Load review queue when tab is opened
+    document.querySelectorAll('.tab').forEach(tab => {
+        if (tab.dataset.tab === 'review') {
+            tab.addEventListener('click', () => loadReviewQueue());
+        }
+        if (tab.dataset.tab === 'users') {
+            tab.addEventListener('click', () => loadUsers());
+        }
+    });
+
+    // ===== USERS TAB =====
+    async function loadUsers() {
+        const loading = document.getElementById('users-loading');
+        const empty = document.getElementById('users-empty');
+        const table = document.getElementById('users-table-container');
+        const stats = document.getElementById('users-stats');
+
+        loading.style.display = 'block';
+        empty.style.display = 'none';
+        table.style.display = 'none';
+        stats.innerHTML = '';
+
+        try {
+            const res = await fetch('/api/admin/users', { headers: apiHeaders() });
+            const data = await res.json();
+            if (!res.ok) return;
+
+            const users = data.users || [];
+
+            // Stats
+            const total = users.length;
+            const active = users.filter(u => u.subscription_status === 'active').length;
+            const trial = users.filter(u => u.subscription_status === 'trial').length;
+            const unpaid = users.filter(u => !u.subscription_status || u.subscription_status === 'null').length;
+            stats.innerHTML =
+                '<div class=stat-card><div class=stat-num>' + total + '</div><div class=stat-label>Total</div></div>' +
+                '<div class=stat-card><div class=stat-num>' + active + '</div><div class=stat-label>Paid</div></div>' +
+                '<div class=stat-card><div class=stat-num>' + trial + '</div><div class=stat-label>Trial</div></div>' +
+                '<div class=stat-card><div class=stat-num style=color:var(--orange)>' + unpaid + '</div><div class=stat-label>Unpaid</div></div>';
+
+            loading.style.display = 'none';
+
+            if (users.length === 0) {
+                empty.style.display = 'block';
+                return;
+            }
+
+            renderUsers(users);
+            table.style.display = 'block';
+        } catch (e) {
+            loading.style.display = 'none';
+        }
+    }
+
+    function renderUsers(users) {
+        const tbody = document.getElementById('users-tbody');
+        tbody.innerHTML = '';
+
+        users.forEach(u => {
+            const status = u.subscription_status || 'null';
+            const badgeClass = status === 'active' ? 'active'
+                : status === 'trial' ? 'trial'
+                : status === 'founder_comp' ? 'founder_comp'
+                : 'null';
+            const badgeText = status === 'founder_comp' ? 'Comp' : status === 'null' ? 'No sub' : status;
+
+            const signupDate = u.created_at ? new Date(u.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td style=font-weight:500;>' + esc(u.email || '—') + '</td>' +
+                '<td style=color:var(--txt2)>' + esc(u.name || '—') + '</td>' +
+                '<td><span class=subscriber-badge ' + badgeClass + '>' + esc(badgeText) + '</span></td>' +
+                '<td style=color:var(--txt3);font-size:0.8rem;>' + esc(u.subscription_plan || '—') + '</td>' +
+                '<td style=color:var(--txt2);font-size:0.8rem;>' + signupDate + '</td>';
+            tbody.appendChild(tr);
+        });
+    }
+
+    // CSV export — opens a new window with the admin key in header, triggers download
+    document.getElementById('btn-export-csv').addEventListener('click', () => {
+        const url = '/api/admin/users/export';
+        const a = document.createElement('a');
+        a.href = url;
+        a.setAttribute('download', 'diagpilot-users.csv');
+        // Pass admin key as query param (backend reads header via requireAdmin)
+        // The XHR approach below handles the header properly
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.setRequestHeader('X-Admin-Key', adminKey);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                const blob = new Blob([xhr.responseText], { type: 'text/csv' });
+                const blobUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = 'diagpilot-users.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+                toast('CSV downloaded!');
+            } else {
+                toast('Export failed.', 'error');
+            }
+        };
+        xhr.send();
+    });
+
+    function esc(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+})();
+</script>
+</body>
+</html>
