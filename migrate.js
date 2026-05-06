@@ -31,7 +31,7 @@ const pool = new Pool({
 async function migrate() {
   console.log('Running migrations...');
 
-  const client = await pool.connect();
+  const client = ();
   try {
     // 1. Create migration tracking table (always first)
     await client.query(`
