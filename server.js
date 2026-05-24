@@ -15,7 +15,7 @@ if (!process.env.DATABASE_URL) {
 app.get('/health', (req, res) => res.json({ status: 'healthy' }));
 
 // Stripe webhook needs raw body — mount before JSON parser
-app.use('/api/stripe',require(',,/routes/stripe.js'));
+app.use('/api/stripe',require('./routes/stripe.js'));
 
 // JSON parser for all other routes
 app.use((req, res, next) => {
@@ -68,3 +68,4 @@ app.use('/api/vehicle-systems', require('./routes/vehicleSystems'));
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+module.exports=router;
