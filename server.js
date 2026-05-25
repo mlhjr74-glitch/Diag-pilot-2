@@ -15,12 +15,12 @@ if (!process.env.DATABASE_URL) {
 app.get('/health', (req, res) => res.json({ status: 'healthy' }));
 
 // Stripe webhook needs raw body — mount before JSON parser
-app.use('/api/stripe',require('../routes/stripe.js'));
+app.use('/api/stripe',require('../stripe.js'));
 
 // JSON parser for all other routes
-app.use((req, res, next) => {
-  express.json()(req, res, next);
-});
+app.use(express.json());
+
+
 
 // App page — log pageview before serving
 app.get('/app', (req, res) => {
@@ -56,14 +56,14 @@ app.get('/admin', (req, res) => {
 });
 
 // API routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/subscription', require('./routes/subscription'));
-app.use('/api/events', require('./routes/events'));
-app.use('/api/vehicles', require('./routes/vehicles'));
-app.use('/api/diagnose', require('./routes/diagnose'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/part-locations', require('./routes/partLocations'));
-app.use('/api/vehicle-systems', require('./routes/vehicleSystems'));
+app.use('/api/auth',require(',/auth.js'));
+app.use('/api/subscription', require(',/subscription.js'));
+app.use('/api/events', require('./events.js'));
+app.use('/api/vehicles', require('./vehicles.js'));
+app.use('/api/diagnose', require('./diagnose.js'));
+app.use('/api/admin', require('./admin.js'));
+app.use('/api/part-locations', require('./partlocations.js'));
+app.use('/api/vehicle-systems', require('./vehiclesytems.js'));
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
