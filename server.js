@@ -65,7 +65,7 @@ app.use('/api/admin', require('./admin.js'));
 app.use('/api/part-locations', require('./partlocations.js'));
 app.use('/api/vehicle-systems', require('./vehiclesytems.js'));
 
-app.listen(port, () => {
+app.listen(port,'0.0.0.0',function(){console.log(server running on port ${port}');});
   console.log(`Server running on port ${port}`);
 });
 
