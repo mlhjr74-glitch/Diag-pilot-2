@@ -56,8 +56,8 @@ app.get('/admin', (req, res) => {
 });
 
 // API routes
-app.use('/api/auth',require(',/auth.js'));
-app.use('/api/subscription', require(',/subscription.js'));
+app.use('/api/auth',require('./auth.js'));
+app.use('/api/subscription', require('./subscription.js'));
 app.use('/api/events', require('./events.js'));
 app.use('/api/vehicles', require('./vehicles.js'));
 app.use('/api/diagnose', require('./diagnose.js'));
@@ -65,7 +65,4 @@ app.use('/api/admin', require('./admin.js'));
 app.use('/api/part-locations', require('./partlocations.js'));
 app.use('/api/vehicle-systems', require('./vehiclesytems.js'));
 
-app.listen(port,'0.0.0.0',function(){console.log(server running on port ${port}');});
-  console.log(`Server running on port ${port}`);
-});
-
+app.listen(port,'0.0.0.0',function(){console.log(`Server running on port ${port}`);});
