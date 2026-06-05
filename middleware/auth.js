@@ -37,10 +37,32 @@ function authenticateToken(req, res, next) {
   }
 }
 
+// Middleware to check subscription status
+function requireSubscription(req, res, next) {
+  // This will be implemented to check user subscription status
+  // For now, allow all authenticated users
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  next();
+}
+
+// Middleware to check admin status
+function requireAdmin(req, res, next) {
+  // Check if user is admin (to be implemented based on your schema)
+  const adminIds = (process.env.ADMIN_IDS || '').split(',').map(id => parseInt(id, 10)).filter(Boolean);
+  if (!req.user || !adminIds.includes(req.user.id)) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+  next();
+}
+
 module.exports = {
   generateToken,
   createSession,
   authenticateToken,
+  requireSubscription,
+  requireAdmin,
   JWT_SECRET,
   BCRYPT_ROUNDS
 };
