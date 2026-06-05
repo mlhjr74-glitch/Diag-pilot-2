@@ -2,7 +2,7 @@
 // Does NOT own: diagnostic sessions, user data, engine DB seeding
 
 const express = require('express');
-const { getEnginesForVehicle } = require('../db/engines');
+const { getEnginesForVehicle } = require('./db/engines');
 
 const router = express.Router();
 

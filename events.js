@@ -2,8 +2,8 @@
 // Does NOT own: Stripe webhooks, auth, subscription status
 
 const express = require('express');
-const { logEvent } = require('../db/events');
-const { authenticateToken } = require('../middleware/auth');
+const { logEvent } = require('./db/events');
+const { authenticateToken } = require('./middleware/auth');
 
 const router = express.Router();
 

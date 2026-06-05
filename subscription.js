@@ -2,9 +2,9 @@
 // Does NOT own: Stripe webhook (routes/stripe.js), auth
 
 const express = require('express');
-const pool = require('../db/index');
-const { authenticateToken } = require('../middleware/auth');
-const { logEvent } = require('../db/events');
+const pool = require('./db/index');
+const { authenticateToken } = require('./middleware/auth');
+const { logEvent } = require('./db/events');
 
 const router = express.Router();
 
