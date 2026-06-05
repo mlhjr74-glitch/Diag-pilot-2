@@ -3,9 +3,9 @@
 
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const pool = require('../db/index');
-const { generateToken, createSession, authenticateToken, BCRYPT_ROUNDS } = require('../middleware/auth');
-const { logEvent } = require('../db/events');
+const pool = require('./db/index');
+const { generateToken, createSession, authenticateToken, BCRYPT_ROUNDS } = require('./middleware/auth');
+const { logEvent } = require('./db/events');
 
 const router = express.Router();
 
@@ -149,7 +149,7 @@ router.post('/forgot-password', async (req, res) => {
               <h1 style=\"font-size:24px;color:#0a0e17\">Diag<span style=\"color:#22d3ee\">Pilot</span></h1>
               <h2>Reset Your Password</h2>
               <p style=\"color:#64748b;font-size:15px;line-height:1.6\">Hi ${user.name || 'there'}, click below to reset your DiagPilot password. This link expires in 1 hour.</p>
-              <div style=\"margin:24px 0\"><a href=\"${resetUrl}\" style=\"display:inline-block;padding:14px 32px;background:#22d3ee;color:#0a0e17;font-weight:700;text-decoration:none;border-radius:10px\">Reset Password</a></div>
+              <div style=\"margin:24px 0\"><a href=\"${resetUrl}\" style=\"display:inline-block;padding:14px 32px;background:#22d3ee;color:#0a0e17;font-weight:700;text-decoration:none;border-radi[...]
               <p style=\"color:#94a3b8;font-size:13px\">If you didn't request this, ignore this email.</p>
             </div>`,
             TextBody: `Reset your DiagPilot password: ${resetUrl}\n\nExpires in 1 hour.`
