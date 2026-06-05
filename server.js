@@ -65,4 +65,10 @@ app.use('/api/admin', require('./admin.js'));
 app.use('/api/part-locations', require('./partlocations.js'));
 app.use('/api/vehicle-systems', require('./vehiclesytems.js'));
 
-app.listen(port,'0.0.0.0',function(){console.log(`Server running on port ${port}`);});
+const server = app.listen(port, '0.0.0.0', function() {
+  console.log(`Server running on port ${port}`);
+});
+
+// Configure timeouts for Render
+server.timeout = 120000; // 120 seconds for all requests
+server.keepAliveTimeout = 65000; // Slightly less than Render's limit
