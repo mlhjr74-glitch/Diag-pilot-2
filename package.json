@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node src/index.js",
+    "start": "node server.js",
+    "dev": "node server.js",
     "build": "npm run migrate",
     "migrate": "node migrate.js"
   },
