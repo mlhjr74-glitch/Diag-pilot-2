@@ -15,7 +15,7 @@ if (!process.env.DATABASE_URL) {
 app.get('/health', (req, res) => res.json({ status: 'healthy' }));
 
 // Stripe webhook needs raw body — mount before JSON parser
-app.use('/api/stripe',require('../stripe.js'));
+app.use('/api/stripe', require('./stripe.js'));
 
 // JSON parser for all other routes
 app.use(express.json());
@@ -56,7 +56,7 @@ app.get('/admin', (req, res) => {
 });
 
 // API routes
-app.use('/api/auth',require('./auth.js'));
+app.use('/api/auth', require('./auth.js'));
 app.use('/api/subscription', require('./subscription.js'));
 app.use('/api/events', require('./events.js'));
 app.use('/api/vehicles', require('./vehicles.js'));
